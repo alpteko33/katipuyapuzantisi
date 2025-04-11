@@ -1,0 +1,329 @@
+:root {
+    --base-font-size: 18px;
+    --base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Apply font family to all text elements */
+body, p, span, div, input, select, button,
+.settings-popup, .settings-sidebar, .settings-main,
+.task-item, .task-description, .task-date,
+.calendar-event, .calendar-date, .calendar-time,
+.notification-text, .menu-text, .settings-text,
+.label-text, .input-text, .button-text {
+    font-family: var(--base-font-family);
+}
+
+/* Apply base font size to all text elements except headings */
+body, p, span, div, input, select, button, 
+.task-item, .task-description, .task-date,
+.calendar-event, .calendar-date, .calendar-time,
+.notification-text, .menu-text, .settings-text,
+.label-text, .input-text, .button-text {
+    font-size: var(--base-font-size);
+}
+
+/* Keep heading sizes relative but larger than base font size */
+h1 { font-size: calc(var(--base-font-size) * 2.5); }  /* Örn: 14px → 35px, 18px → 45px, 22px → 55px */
+h2 { font-size: calc(var(--base-font-size) * 2); }    /* Örn: 14px → 28px, 18px → 36px, 22px → 44px */
+h3 { font-size: calc(var(--base-font-size) * 1.5); }  /* Örn: 14px → 21px, 18px → 27px, 22px → 33px */
+h4 { font-size: calc(var(--base-font-size) * 1.25); } /* Örn: 14px → 17.5px, 18px → 22.5px, 22px → 27.5px */
+
+/* Special text elements that should remain relatively sized */
+.settings-header h2,
+.task-header h2,
+.calendar-header h2 {
+    font-size: calc(var(--base-font-size) * 1.75); /* Başlıklar için özel boyut */
+}
+
+.settings-group h4,
+.task-group h4,
+.calendar-group h4 {
+    font-size: calc(var(--base-font-size) * 1.1); /* Alt başlıklar için özel boyut */
+}
+
+/* Quiet mode styles */
+body.quiet-mode .notification,
+body.quiet-mode .alert,
+body.quiet-mode .sound-effect {
+    display: none !important;
+}
+
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999999;
+    backdrop-filter: blur(5px);
+}
+
+.settings-overlay.active {
+    display: flex;
+}
+
+.settings-overlay.active ~ * {
+    filter: blur(5px);
+    pointer-events: none;
+}
+
+.settings-popup {
+    background-color: #fff;
+    width: 95%;
+    max-width: 1200px;
+    height: 85vh;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    filter: none !important;
+    pointer-events: auto !important;
+    position: relative;
+}
+
+.settings-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    padding: 8px;
+    color: #666;
+    z-index: 99999;
+    background-color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.settings-close:hover {
+    color: #333;
+    background-color: #f5f5f7;
+    transform: scale(1.1);
+}
+
+.settings-sidebar {
+    width: 250px;
+    background-color: #f5f5f7;
+    border-right: 1px solid #e0e0e0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-header {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.settings-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.settings-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.settings-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.settings-menu-item i {
+    width: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.settings-menu-item span {
+    color: #333;
+}
+
+.settings-menu-item:hover {
+    background-color: #e8e8e8;
+}
+
+.settings-menu-item.active {
+    background-color: #007AFF;
+}
+
+.settings-menu-item.active i,
+.settings-menu-item.active span {
+    color: white;
+}
+
+.settings-main {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.settings-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.settings-section h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 20px;
+}
+
+.settings-group {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.settings-group h4 {
+    margin: 0 0 15px 0;
+    color: #666;
+    font-size: 16px;
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+/* Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #007AFF;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Checkbox and Radio */
+.checkbox-label,
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.setting-description {
+    margin: 5px 0 0 25px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Select and Input */
+select,
+input[type="time"] {
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: white;
+    color: #333;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+select:focus,
+input[type="time"]:focus {
+    border-color: #007AFF;
+    outline: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .settings-popup {
+        flex-direction: column;
+        height: 95vh;
+    }
+
+    .settings-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px;
+    }
+
+    .settings-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .settings-menu-item {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .settings-main {
+        padding: 15px;
+    }
+} 

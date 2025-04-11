@@ -1,0 +1,1310 @@
+.account-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999999;
+    backdrop-filter: blur(5px);
+}
+
+.account-overlay.active {
+    display: flex;
+}
+
+.account-overlay.active ~ * {
+    filter: blur(5px);
+    pointer-events: none;
+}
+
+.account-popup {
+    background-color: #fff;
+    width: 95%;
+    max-width: 1200px;
+    height: 85vh;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    filter: none !important;
+    pointer-events: auto !important;
+    position: relative;
+}
+
+.account-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    padding: 8px;
+    color: #666;
+    z-index: 99999;
+    background-color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.account-close:hover {
+    color: #333;
+    background-color: #f5f5f7;
+    transform: scale(1.1);
+}
+
+.account-sidebar {
+    width: 250px;
+    background-color: #f5f5f7;
+    border-right: 1px solid #e0e0e0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.account-header {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.account-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.account-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.account-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.account-menu-item i {
+    width: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.account-menu-item span {
+    color: #333;
+}
+
+.account-menu-item:hover {
+    background-color: #e8e8e8;
+}
+
+.account-menu-item.active {
+    background-color: #007AFF;
+}
+
+.account-menu-item.active i,
+.account-menu-item.active span {
+    color: white;
+}
+
+.account-main {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.account-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.account-section h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 20px;
+}
+
+.account-group {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-row label {
+    color: #666;
+    font-size: 14px;
+}
+
+.info-row input,
+.info-row textarea {
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.info-row textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.info-row input:focus,
+.info-row textarea:focus {
+    border-color: #007AFF;
+    outline: none;
+}
+
+button.add-staff-btn,
+button.add-client-btn,
+button.add-assignment-btn,
+button.save-lawyer-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+button.add-staff-btn:hover,
+button.add-client-btn:hover,
+button.add-assignment-btn:hover,
+button.save-lawyer-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Avukat Bölümü Stilleri */
+.lawyer-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.lawyer-form {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.lawyer-list {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.lawyer-list h4 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.lawyers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.lawyer-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 15px;
+    transition: all 0.2s ease;
+}
+
+.lawyer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.lawyer-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.lawyer-card-header h5 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.lawyer-id-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.lawyer-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lawyer-card-body p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lawyer-card-body i {
+    color: #007AFF;
+    width: 16px;
+}
+
+.lawyer-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-lawyer-btn,
+.delete-lawyer-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-lawyer-btn i {
+    color: #007AFF;
+}
+
+.delete-lawyer-btn i {
+    color: #dc3545;
+}
+
+.edit-lawyer-btn:hover {
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+.delete-lawyer-btn:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.save-lawyer-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.save-lawyer-btn:hover {
+    background-color: #0056b3;
+}
+
+.save-lawyer-btn.editing {
+    background-color: #28a745;
+}
+
+.save-lawyer-btn.editing:hover {
+    background-color: #218838;
+}
+
+/* Personel Bölümü Stilleri */
+.staff-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.staff-form {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.staff-list {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.staff-list h4 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.staffs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.staff-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 15px;
+    transition: all 0.2s ease;
+}
+
+.staff-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.staff-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.staff-card-header h5 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.staff-position-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.staff-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.staff-card-body p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.staff-card-body i {
+    color: #007AFF;
+    width: 16px;
+}
+
+.staff-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-staff-btn,
+.delete-staff-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-staff-btn i {
+    color: #007AFF;
+}
+
+.delete-staff-btn i {
+    color: #dc3545;
+}
+
+.edit-staff-btn:hover {
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+.delete-staff-btn:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.save-staff-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.save-staff-btn:hover {
+    background-color: #0056b3;
+}
+
+.save-staff-btn.editing {
+    background-color: #28a745;
+}
+
+.save-staff-btn.editing:hover {
+    background-color: #218838;
+}
+
+select.staff-position {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+select.staff-position:focus {
+    border-color: #007AFF;
+    outline: none;
+}
+
+/* Müvekkil Bölümü Stilleri */
+.clients-list {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.clients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.clients-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.clients-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.refresh-clients-btn {
+    background: none;
+    border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.refresh-clients-btn:hover {
+    background-color: #f5f5f7;
+    color: #333;
+}
+
+.refresh-clients-btn i {
+    font-size: 14px;
+}
+
+.clients-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.client-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.client-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.client-card-header {
+    background: #007AFF;
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.client-card-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.client-role-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.client-card-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.client-card-body p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.client-card-body i {
+    color: #007AFF;
+    width: 16px;
+}
+
+.loading-clients {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    grid-column: 1 / -1;
+}
+
+.loading-clients i {
+    font-size: 32px;
+    margin-bottom: 15px;
+    color: #007AFF;
+}
+
+.no-clients {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    grid-column: 1 / -1;
+}
+
+.no-clients i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+}
+
+.no-clients .help-text {
+    font-size: 14px;
+    color: #999;
+    margin-top: 10px;
+}
+
+.error-message {
+    text-align: center;
+    padding: 40px;
+    color: #dc3545;
+    grid-column: 1 / -1;
+}
+
+.error-message i {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+/* Hızlı Dilekçe Popup Stilleri */
+.quick-petition-popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quick-petition-popup {
+    background-color: white;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 10000000;
+    filter: none !important;
+    pointer-events: auto !important;
+}
+
+.quick-petition-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.quick-petition-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.quick-petition-close {
+    cursor: pointer;
+    font-size: 24px;
+    color: #666;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.quick-petition-close:hover {
+    background-color: #f5f5f5;
+}
+
+.quick-petition-content .form-group {
+    margin-bottom: 15px;
+}
+
+.quick-petition-content .form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.quick-petition-content .form-group input,
+.quick-petition-content .form-group select,
+.quick-petition-content .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.quick-petition-content .form-group textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+.quick-petition-content .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.quick-petition-content .form-actions button {
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.quick-petition-content .form-actions button:hover {
+    opacity: 0.9;
+}
+
+.generate-petition-btn {
+    background-color: #007AFF;
+    color: white;
+}
+
+.copy-petition-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.save-petition-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .account-popup {
+        flex-direction: column;
+        height: 95vh;
+    }
+
+    .account-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px;
+    }
+
+    .account-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .account-menu-item {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .account-main {
+        padding: 15px;
+    }
+
+    .info-row {
+        flex-direction: column;
+    }
+
+    .lawyer-container,
+    .staff-container {
+        grid-template-columns: 1fr;
+    }
+
+    .clients-cards-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-petition-popup {
+        width: 95%;
+        max-height: 95vh;
+    }
+}
+
+/* Görevlendirmeler Bölümü Stilleri */
+.assignments-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.assignments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.assignments-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.assignments-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.refresh-assignments-btn {
+    background: none;
+    border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.refresh-assignments-btn:hover {
+    background-color: #f5f5f7;
+    color: #333;
+}
+
+.refresh-assignments-btn i {
+    font-size: 14px;
+}
+
+.assignments-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.assignment-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.assignment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.assignment-card-header {
+    background: #6c757d;
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.petition-card .assignment-card-header {
+    background: #007AFF;
+}
+
+.assignment-card-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.assignment-card-date {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.assignment-card-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.assignment-card-body p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.assignment-card-body i {
+    color: #007AFF;
+    width: 16px;
+}
+
+.assignment-card-actions {
+    padding: 10px 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #e9ecef;
+}
+
+.view-petition-btn, 
+.edit-petition-btn, 
+.edit-assignment-btn {
+    background: none;
+    border: 1px solid #007AFF;
+    color: #007AFF;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.view-petition-btn:hover, 
+.edit-petition-btn:hover, 
+.edit-assignment-btn:hover {
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+.delete-assignment-btn {
+    background: none;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.delete-assignment-btn:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.add-assignment-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.add-assignment-btn:hover {
+    background-color: #0056b3;
+}
+
+.loading-assignments {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.loading-assignments i {
+    font-size: 32px;
+    margin-bottom: 15px;
+    color: #007AFF;
+}
+
+.no-assignments {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.no-assignments i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+}
+
+/* Dilekçe Görüntüleme ve Düzenleme Popup Stilleri */
+.quick-petition-viewer-container,
+.quick-petition-editor-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: none !important;
+    pointer-events: auto !important;
+}
+
+.petition-info {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.petition-info p {
+    margin: 8px 0;
+}
+
+.petition-content-viewer {
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 20px;
+    min-height: 300px;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.update-petition-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.update-petition-btn:hover {
+    opacity: 0.9;
+}
+
+/* Responsive Design - Görevlendirmeler */
+@media (max-width: 768px) {
+    .assignments-cards-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .assignment-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .assignment-card-date {
+        align-self: flex-start;
+    }
+    
+    .assignment-card-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* Blur efektinden korunacak popup'lar */
+.quick-petition-popup-container,
+.quick-petition-viewer-container,
+.quick-petition-editor-container {
+    filter: none !important;
+    pointer-events: auto !important;
+    z-index: 9999999;
+}
+
+.quick-petition-popup {
+    filter: none !important;
+    pointer-events: auto !important;
+    z-index: 10000000;
+    position: relative;
+}
+
+/* Dava Notları Stilleri */
+.case-notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.case-notes-header {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.case-notes-search {
+    display: flex;
+}
+
+.case-notes-search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.case-notes-add {
+    display: flex;
+    gap: 10px;
+}
+
+.case-notes-add-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.add-case-note-btn {
+    padding: 10px 15px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.add-case-note-btn:hover {
+    background-color: #0056b3;
+}
+
+.case-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    overflow-y: auto;
+    max-height: calc(85vh - 220px);
+    padding: 5px;
+}
+
+.case-note-card {
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 120px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.case-note-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.case-note-content {
+    flex: 1;
+}
+
+.case-note-content p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    word-break: break-word;
+}
+
+.case-note-date {
+    font-size: 12px;
+    color: #666;
+    opacity: 0.8;
+}
+
+.case-note-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-top: 10px;
+}
+
+.case-note-card:hover .case-note-actions {
+    opacity: 1;
+}
+
+.edit-note-btn,
+.delete-note-btn {
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.edit-note-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.delete-note-btn:hover {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #e53935;
+}
+
+@media (max-width: 768px) {
+    .case-notes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    
+    .case-notes-header {
+        flex-direction: column;
+    }
+    
+    .case-notes-add {
+        flex-direction: column;
+    }
+    
+    .case-note-actions {
+        opacity: 1;
+    }
+}

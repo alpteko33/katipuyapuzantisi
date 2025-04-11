@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "name": "UYAP Asistan",
+  "version": "1.0.0",
+  "description": "UYAP Portal için yardımcı uzantı",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "*://*.uyap.gov.tr/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.uyap.gov.tr/*"],
+      "css": [
+        "styles/sidebar.css",
+        "styles/tasks.css",
+        "styles/settings.css",
+        "styles/account.css",
+        "styles/calculator.css"
+      ],
+      "js": [
+        "src/content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "styles/*",
+        "src/*",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css",
+        "src/tasks.js",
+        "src/calendar.js",
+        "src/settings.js",
+        "src/account.js",
+        "src/calculator.js",
+        "src/inject.js",
+        "src/injecttask.js",
+        "src/quick-petition.js",
+        "src/file-tracking.js",
+        "src/synchronization.js",
+        "styles/tasks.css",
+        "styles/calendar.css",
+        "styles/settings.css",
+        "styles/account.css",
+        "styles/calculator.css",
+        "temp_functions.js"
+      ],
+      "matches": ["*://*.uyap.gov.tr/*"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' https://cdnjs.cloudflare.com;"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+} 

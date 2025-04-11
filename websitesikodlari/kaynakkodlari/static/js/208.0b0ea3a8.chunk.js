@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkavukat=self.webpackChunkavukat||[]).push([[208],{60208:(e,a,t)=>{t.r(a),t.d(a,{BakiyeContext:()=>s,BakiyeProvider:()=>i});var r=t(9950),k=t(44414);const s=(0,r.createContext)(),i=e=>{let{children:a}=e;const[t,i]=(0,r.useState)({});return(0,k.jsx)(s.Provider,{value:{bakiyeData:t,setBakiyeData:i},children:a})}}}]);

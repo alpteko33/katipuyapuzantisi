@@ -1,0 +1,262 @@
+.uyap-extension-panel {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Başlangıçta gizli */
+    width: 300px;
+    height: 100vh;
+    background-color: #ffffff; /* Beyaz arka plan */
+    color: #333333;
+    padding: 0;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.15);
+    z-index: 999999;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.uyap-extension-panel.active {
+    right: 0; /* Açık durumda */
+}
+
+.extension-toggle {
+    position: fixed;
+    top: 200px; /* Daha yukarıda konumlandırıldı */
+    right: 0;
+    background-color: #24377F; /* İstenen renk kodu */
+    color: #ffffff;
+    padding: 15px 10px; /* Dikey olarak daha uzun */
+    cursor: pointer;
+    border-radius: 5px 0 0 5px;
+    z-index: 999998;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: bold;
+    font-size: 0.75em;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.extension-toggle:hover {
+    background-color: #2a4395; /* Hover durumu için biraz daha açık ton */
+    box-shadow: -3px 0 12px rgba(0, 0, 0, 0.3);
+}
+
+.extension-toggle i {
+    margin-bottom: 5px;
+    font-size: 1.2em;
+}
+
+.extension-toggle-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    margin-top: 5px;
+    letter-spacing: 1px;
+}
+
+.extension-header {
+    padding: 15px 20px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+}
+
+.extension-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.extension-logo img {
+    width: 120px;
+    margin-bottom: 10px;
+}
+
+.extension-logo h2 {
+    color: #24377F;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.extension-logo h3 {
+    color: #777777;
+    font-size: 18px;
+    font-weight: normal;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.extension-header h3 {
+    margin: 0;
+    color: #24377F;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.extension-close {
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.2em;
+    color: #24377F;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+    position: absolute;
+    right: 12px;
+    top: 8px;
+}
+
+.extension-close:hover {
+    opacity: 1;
+}
+
+.extension-search {
+    padding: 10px 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.extension-search-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 8px 15px;
+    background-color: #f8f8f8;
+}
+
+.extension-search-input i {
+    color: #777777;
+    margin-right: 10px;
+}
+
+.extension-search-input input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: #333333;
+    font-size: 14px;
+}
+
+.extension-menu {
+    padding: 0;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.home-item, .favorites-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.home-item i, .favorites-item i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    color: #24377F;
+    font-size: 16px;
+}
+
+.home-item span, .favorites-item span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #24377F;
+}
+
+.favorites-note {
+    padding: 5px 20px;
+    font-size: 12px;
+    color: #777777;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.extension-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+    color: #000000; /* Siyah renk */
+    position: relative;
+}
+
+.extension-item:hover {
+    background-color: #f5f5f5;
+}
+
+.extension-item-content {
+    display: flex;
+    align-items: center;
+}
+
+.extension-item i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    color: #24377F;
+    font-size: 16px;
+}
+
+.extension-item .arrow-icon {
+    color: #777777;
+    font-size: 14px;
+    transition: transform 0.3s;
+}
+
+.extension-item.active .arrow-icon {
+    transform: rotate(90deg);
+}
+
+.extension-item span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000; /* Siyah renk */
+}
+
+.extension-divider {
+    height: 10px;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.extension-footer {
+    padding: 15px 20px;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+    font-size: 12px;
+    color: #777777;
+}
+
+/* Responsive tasarım için */
+@media screen and (max-width: 768px) {
+    .uyap-extension-panel {
+        width: 100%;
+        right: -100%;
+    }
+    
+    .uyap-extension-panel.active {
+        right: 0;
+    }
+} 
