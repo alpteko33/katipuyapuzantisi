@@ -4,7 +4,8 @@
   "description": "UYAP Portal için yardımcı uzantı",
   "scripts": {
     "build": "webpack --config webpack.common.js",
-    "watch": "webpack --watch --config webpack.common.js"
+    "watch": "webpack --watch --config webpack.common.js",
+    "start:pdf-server": "node server/base64topdf/server.js"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.260",
@@ -20,6 +21,9 @@
     "axios": "^1.8.4",
     "chokidar": "^4.0.3",
     "pdf-parser": "^1.0.5",
-    "pdfjs-dist": "^5.1.91"
+    "pdfjs-dist": "^5.1.91",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "pdf-parse": "^1.1.1"
   }
 }

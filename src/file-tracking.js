@@ -575,7 +575,7 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                             for (const tebligat of kapaliTebligatlar) {
                                 try {
                                     // Belge indirme URL'sini oluştur
-                                    const downloadUrl = `https://avukatbeta.uyap.gov.tr/download_document_brd.uyap?evrakId=${tebligat.evrakId}&dosyaId=${dosyaId}`;
+                                    const downloadUrl = `https://avukatbeta.uyap.gov.tr/download_document_brd.uyap?evrakId=${tebligat.evrakId}&dosyaId=${encodeURIComponent(dosyaId)}`;
                                     
                                     console.log(`UYAP Asistan: Tebligat indiriliyor: ${downloadUrl}`);
                                     
@@ -583,9 +583,28 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                     fetch(downloadUrl, {
                                         method: 'GET',
                                         credentials: 'include'
-                                    }).then(response => {
+                                    }).then(async response => {
                                         if (response.ok) {
                                             console.log(`UYAP Asistan: Tebligat başarıyla indirildi: ${tebligat.evrakId}`);
+                                            
+                                            // PDF'i blob olarak al
+                                            const blob = await response.blob();
+                                            
+                                            // Blob'u base64'e çevir
+                                            const reader = new FileReader();
+                                            reader.readAsDataURL(blob);
+                                            
+                                            reader.onloadend = async function() {
+                                                // Base64 verisini al (data:application/pdf;base64, kısmını kaldır)
+                                                const base64Data = reader.result.split(',')[1];
+                                                
+                                                try {
+                                                    // Base64 verisini işle ve PTT sorgusu yap
+                                                    await processBarcodeAndCheckPTT(base64Data);
+                                                } catch (error) {
+                                                    console.error('UYAP Asistan: İşlem hatası:', error);
+                                                }
+                                            };
                                         } else {
                                             console.error(`UYAP Asistan: Tebligat indirilemedi: ${tebligat.evrakId}`, response.status);
                                         }
@@ -3116,3 +3135,73 @@ class EvrakDownloader {
         });
     }
 })();
+
+async function sendBase64ToPdfServer(base64Data) {
+    try {
+        const response = await fetch('https://base64to-barcod.vercel.app/api/extract-barcode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ base64String: base64Data })
+        });
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('PDF sunucu hatası:', error);
+        throw error;
+    }
+}
+
+async function checkPTTStatus(barcodeNumber) {
+    try {
+        const response = await fetch('https://avukatbeta.uyap.gov.tr/mts_tebligat_safahat_list_brd.ajx', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                barkodNo: barcodeNumber
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('PTT sorgusu başarısız oldu');
+        }
+
+        const data = await response.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
+            console.log('PTT tarafından evrak kaydı yapılmamıştır');
+            return;
+        }
+
+        const status5 = data.find(item => item.siraNo === 5);
+        if (status5) {
+            console.log(`Tebligat Durumu: ${status5.aciklama}`);
+        } else {
+            console.log('PTT tarafından evrak kaydı yapılmamıştır');
+        }
+    } catch (error) {
+        console.error('PTT sorgusu sırasında hata oluştu:', error);
+    }
+}
+
+async function processBarcodeAndCheckPTT(base64Data) {
+    try {
+        // Önce barkod numarasını al
+        const result = await sendBase64ToPdfServer(base64Data);
+        
+        if (result.success) {
+            const barcodeNumber = result.data.barcodeNumber;
+            console.log('Barkod Numarası:', barcodeNumber);
+
+            // Barkod numarası ile PTT sorgusu yap
+            await checkPTTStatus(barcodeNumber);
+        } else {
+            console.error('Barkod bulunamadı:', result.error);
+        }
+    } catch (error) {
+        console.error('İşlem sırasında hata oluştu:', error);
+    }
+}
