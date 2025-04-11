@@ -54,3 +54,5 @@ npm run build
 ## Lisans
 
 Bu proje [LICENSE] altında lisanslanmıştır. 
+
+deneme
