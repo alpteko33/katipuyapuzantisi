@@ -495,7 +495,7 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                 const dosyaId = localStorage.getItem('uyap_asistan_current_dosya_id') || localStorage.getItem('uyap_asistan_dosya_id');
                 
                 if (!dosyaId) {
-                    alert('Dosya ID bulunamadı! Lütfen sayfayı yenileyip tekrar deneyin.');
+                    console.error('UYAP Asistan: Dosya ID bulunamadı! Lütfen sayfayı yenileyip tekrar deneyin.');
                     return;
                 }
                 
@@ -534,12 +534,39 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                 // Her evrakı kontrol et
                                 evraklar.forEach(evrak => {
                                     if (evrak.tur === 'Kapalı Tebligat') {
+                                        // Elektronik tebligat kontrolü
+                                        let isElektronikTebligat = false;
+                                        
+                                        // Aciklama alanı varsa, elektronik tebligat içerip içermediğini kontrol et
+                                        if (evrak.aciklama) {
+                                            const aciklamaLower = evrak.aciklama.toLowerCase();
+                                            if (aciklamaLower.includes("elektronik tebligat") || 
+                                                aciklamaLower.includes("e-tebligat") || 
+                                                aciklamaLower.includes("ulak") || 
+                                                aciklamaLower.includes("elektronik tebliğ") ||
+                                                aciklamaLower.includes("uets")) {
+                                                
+                                                isElektronikTebligat = true;
+                                                
+                                                // Elektronik tebligat olduğunu konsola yazdır
+                                                console.log('***********************');
+                                                console.log('Elektronik Tebligat Tespit Edildi');
+                                                console.log('Evrak ID:', evrak.evrakId);
+                                                console.log('Açıklama:', evrak.aciklama);
+                                                console.log('Tarih:', evrak.sistemeGonderildigiTarih);
+                                                console.log('Gönderen:', evrak.gonderenYerKisi);
+                                                console.log('***********************');
+                                            }
+                                        }
+                                        
+                                        // Eklenecek evrak bilgilerini hazırla
                                         kapaliTebligatlar.push({
                                             evrakId: evrak.evrakId,
                                             dosyaId: evrak.dosyaId,
                                             tur: evrak.tur,
                                             tarih: evrak.sistemeGonderildigiTarih,
-                                            gonderenKisi: evrak.gonderenYerKisi
+                                            gonderenKisi: evrak.gonderenYerKisi,
+                                            isElektronikTebligat: isElektronikTebligat
                                         });
                                     }
                                 });
@@ -553,12 +580,38 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                     // Eğer bu evrak zaten listeye eklenmemişse ekle
                                     const varMi = kapaliTebligatlar.some(item => item.evrakId === evrak.evrakId);
                                     if (!varMi) {
+                                        // Elektronik tebligat kontrolü
+                                        let isElektronikTebligat = false;
+                                        
+                                        // Aciklama alanı varsa, elektronik tebligat içerip içermediğini kontrol et
+                                        if (evrak.aciklama) {
+                                            const aciklamaLower = evrak.aciklama.toLowerCase();
+                                            if (aciklamaLower.includes("elektronik tebligat") || 
+                                                aciklamaLower.includes("e-tebligat") || 
+                                                aciklamaLower.includes("ulak") || 
+                                                aciklamaLower.includes("elektronik tebliğ") ||
+                                                aciklamaLower.includes("uets")) {
+                                                
+                                                isElektronikTebligat = true;
+                                                
+                                                // Elektronik tebligat olduğunu konsola yazdır
+                                                console.log('***********************');
+                                                console.log('Elektronik Tebligat Tespit Edildi');
+                                                console.log('Evrak ID:', evrak.evrakId);
+                                                console.log('Açıklama:', evrak.aciklama);
+                                                console.log('Tarih:', evrak.sistemeGonderildigiTarih);
+                                                console.log('Gönderen:', evrak.gonderenYerKisi);
+                                                console.log('***********************');
+                                            }
+                                        }
+                                        
                                         kapaliTebligatlar.push({
                                             evrakId: evrak.evrakId,
                                             dosyaId: evrak.dosyaId,
                                             tur: evrak.tur,
                                             tarih: evrak.sistemeGonderildigiTarih,
-                                            gonderenKisi: evrak.gonderenYerKisi
+                                            gonderenKisi: evrak.gonderenYerKisi,
+                                            isElektronikTebligat: isElektronikTebligat
                                         });
                                     }
                                 }
@@ -569,7 +622,7 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                         
                         // Tespit edilen tebligatlar hakkında kullanıcıyı bilgilendir
                         if (kapaliTebligatlar.length > 0) {
-                            alert(`${kapaliTebligatlar.length} adet kapalı tebligat bulundu. İndirme işlemi başlatılıyor...`);
+                            console.log(`UYAP Asistan: ${kapaliTebligatlar.length} adet kapalı tebligat bulundu. İndirme işlemi başlatılıyor...`);
                             
                             // Her kapalı tebligat için indir
                             for (const tebligat of kapaliTebligatlar) {
@@ -599,8 +652,26 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                                 const base64Data = reader.result.split(',')[1];
                                                 
                                                 try {
-                                                    // Base64 verisini işle ve PTT sorgusu yap
-                                                    await processBarcodeAndCheckPTT(base64Data);
+                                                    // Önce barkod numarasını al
+                                                    const barkodResult = await sendBase64ToPdfServer(base64Data);
+                                                    
+                                                    if (barkodResult.success) {
+                                                        const barcodeNumber = barkodResult.data.barcodeNumber;
+                                                        
+                                                        // Eğer elektronik tebligat ise
+                                                        if (tebligat.isElektronikTebligat) {
+                                                            console.log('***********************');
+                                                            console.log('Elektronik Tebligat Barkod Numarası:', barcodeNumber);
+                                                            console.log('Evrak ID:', tebligat.evrakId);
+                                                            console.log('***********************');
+                                                            return; // PTT sorgusu yapmadan çık
+                                                        } else {
+                                                            // Normal tebligat ise PTT sorgusu yap
+                                                            await processBarcodeAndCheckPTT(base64Data);
+                                                        }
+                                                    } else {
+                                                        console.error('Barkod bulunamadı:', barkodResult.error);
+                                                    }
                                                 } catch (error) {
                                                     console.error('UYAP Asistan: İşlem hatası:', error);
                                                 }
@@ -620,18 +691,18 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                 }
                             }
                             
-                            alert('Tebligat indirme işlemleri tamamlandı. Ağ sekmesini kontrol edebilirsiniz.');
+                            console.log('UYAP Asistan: Tebligat indirme işlemleri tamamlandı. Ağ sekmesini kontrol edebilirsiniz.');
                         } else {
-                            alert('Kapalı tebligat bulunamadı!');
+                            console.log('UYAP Asistan: Kapalı tebligat bulunamadı!');
                         }
                     } else {
                         // Hata durumu
-                        alert('Tebligat sorgulaması sırasında bir hata oluştu!');
+                        console.error('UYAP Asistan: Tebligat sorgulaması sırasında bir hata oluştu!');
                         console.error('UYAP Asistan: Tebligat sorgulaması hatası:', data);
                     }
                 } catch (error) {
                     // İstek hatası
-                    alert('Tebligat sorgulaması yapılırken bir hata oluştu!');
+                    console.error('UYAP Asistan: Tebligat sorgulaması yapılırken bir hata oluştu!');
                     console.error('UYAP Asistan: Tebligat sorgulaması istek hatası:', error);
                 } finally {
                     // Buton durumunu eski haline getir
@@ -3171,6 +3242,12 @@ async function checkPTTStatus(barcodeNumber) {
 
         const data = await response.json();
         
+        // Normal tebligat veri yapısını konsola yazdır
+        console.log('***********************');
+        console.log('Normal Tebligat:');
+        console.log('Barkod Numarası:', barcodeNumber);
+        console.log('***********************');
+        
         if (!Array.isArray(data) || data.length === 0) {
             console.log('PTT tarafından evrak kaydı yapılmamıştır');
             return;
@@ -3196,7 +3273,70 @@ async function processBarcodeAndCheckPTT(base64Data) {
             const barcodeNumber = result.data.barcodeNumber;
             console.log('Barkod Numarası:', barcodeNumber);
 
-            // Barkod numarası ile PTT sorgusu yap
+            // Elektronik tebligat kontrolü
+            try {
+                const response = await fetch('https://avukatbeta.uyap.gov.tr/mts_tebligat_safahat_list_brd.ajx', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        barkodNo: barcodeNumber
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('PTT sorgusu başarısız oldu');
+                }
+
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    // Her öğeyi kontrol et ve elektronik tebligat olup olmadığını belirle
+                    let isElektronikTebligat = false;
+                    let tebligatBilgisi = null;
+                    
+                    // Tüm veri öğelerini döngü ile kontrol et
+                    for (const item of data) {
+                        // Tüm özellikleri kontrol et
+                        Object.entries(item).forEach(([key, value]) => {
+                            if (value && typeof value === 'string') {
+                                const valueLower = value.toLowerCase();
+                                
+                                // Elektronik tebligat ile ilgili anahtar kelimeleri ara
+                                if (valueLower.includes("elektronik tebligat") || 
+                                    valueLower.includes("e-tebligat") ||
+                                    valueLower.includes("ulak") || 
+                                    valueLower.includes("elektronik tebliğ") ||
+                                    valueLower.includes("uets")) {
+                                    
+                                    isElektronikTebligat = true;
+                                    tebligatBilgisi = item;
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Elektronik tebligat bulunduysa
+                    if (isElektronikTebligat && tebligatBilgisi) {
+                        console.log('***********************');
+                        console.log('Elektronik Tebligat Tespit Edildi');
+                        console.log('Barkod Numarası:', barcodeNumber);
+                        
+                        // Sadece aciklama alanını göster (varsa)
+                        if (tebligatBilgisi.aciklama) {
+                            console.log('Açıklama:', tebligatBilgisi.aciklama);
+                        }
+                        
+                        console.log('***********************');
+                        return; // PTT sorgusu yapmadan çık
+                    }
+                }
+            } catch (error) {
+                console.error('Elektronik tebligat kontrolü sırasında hata oluştu:', error);
+            }
+
+            // Elektronik tebligat değilse normal PTT sorgusu yap
             await checkPTTStatus(barcodeNumber);
         } else {
             console.error('Barkod bulunamadı:', result.error);
