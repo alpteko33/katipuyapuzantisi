@@ -455,47 +455,187 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
             
             // Otomatik Tarama Sistemi container
             const scanContainer = document.createElement('div');
-            scanContainer.className = 'scan-container';
+            scanContainer.className = 'file-tracking-scan-container';
             scanContainer.style.cssText = `
+                margin: 20px 0;
                 padding: 20px;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+                border: 1px solid #e0e0e0;
             `;
+            
+            // Tarih filtreleme bölümü
+            const dateFilterContainer = document.createElement('div');
+            dateFilterContainer.className = 'date-filter-container mb-3';
+            dateFilterContainer.style.cssText = `
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            // Varsayılan tarih aralığını hesapla (son 2 ay)
+            const today = new Date();
+            const twoMonthsAgo = new Date();
+            twoMonthsAgo.setMonth(today.getMonth() - 2);
+            
+            const formatDateForInput = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            // Başlangıç tarihi etiketi ve input
+            const startDateLabel = document.createElement('label');
+            startDateLabel.textContent = 'Başlangıç Tarihi:';
+            startDateLabel.htmlFor = 'tebligat-start-date';
+            startDateLabel.style.cssText = `
+                font-weight: 500;
+                margin-right: 5px;
+            `;
+            
+            const startDateInput = document.createElement('input');
+            startDateInput.type = 'date';
+            startDateInput.id = 'tebligat-start-date';
+            startDateInput.className = 'form-control';
+            startDateInput.value = formatDateForInput(twoMonthsAgo);
+            startDateInput.style.cssText = `
+                width: auto;
+            `;
+            
+            // Bitiş tarihi etiketi ve input
+            const endDateLabel = document.createElement('label');
+            endDateLabel.textContent = 'Bitiş Tarihi:';
+            endDateLabel.htmlFor = 'tebligat-end-date';
+            endDateLabel.style.cssText = `
+                font-weight: 500;
+                margin-right: 5px;
+                margin-left: 10px;
+            `;
+            
+            const endDateInput = document.createElement('input');
+            endDateInput.type = 'date';
+            endDateInput.id = 'tebligat-end-date';
+            endDateInput.className = 'form-control';
+            endDateInput.value = formatDateForInput(today);
+            endDateInput.style.cssText = `
+                width: auto;
+            `;
+            
+            // Tarih filtreleme bileşenlerini container'a ekle
+            dateFilterContainer.appendChild(startDateLabel);
+            dateFilterContainer.appendChild(startDateInput);
+            dateFilterContainer.appendChild(endDateLabel);
+            dateFilterContainer.appendChild(endDateInput);
             
             // Tebligat Sorgulama butonu
             const tebligatBtn = document.createElement('button');
-            tebligatBtn.textContent = 'Tebligat Sorgulama';
-            tebligatBtn.className = 'tebligat-sorgulama-btn';
+            tebligatBtn.className = 'dx-button dx-button-mode-contained dx-button-normal';
             tebligatBtn.style.cssText = `
-                padding: 12px 20px;
                 background-color: #24377F;
                 color: white;
+                padding: 12px 20px;
                 border: none;
                 border-radius: 5px;
                 font-weight: bold;
                 cursor: pointer;
+                margin-top: 10px;
+                width: 80%;
+                max-width: 300px;
                 transition: background-color 0.3s;
-                align-self: flex-start;
-                font-size: 14px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
             `;
+            tebligatBtn.textContent = 'Tebligat Sorgulama';
             
             // Hover efekti
             tebligatBtn.addEventListener('mouseover', function() {
                 this.style.backgroundColor = '#1a2a5e';
             });
-            
             tebligatBtn.addEventListener('mouseout', function() {
                 this.style.backgroundColor = '#24377F';
             });
             
+            // İlerleme göstergesi div'i oluştur
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'progress-container mt-3';
+            progressContainer.style.cssText = `
+                display: none;
+                width: 80%;
+                max-width: 300px;
+                margin-left: auto;
+                margin-right: auto;
+            `;
+            
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress';
+            progressBar.style.cssText = `
+                height: 20px;
+                background-color: #e0e0e0;
+                border-radius: 5px;
+                overflow: hidden;
+            `;
+            
+            const progressInner = document.createElement('div');
+            progressInner.className = 'progress-bar';
+            progressInner.style.cssText = `
+                height: 100%;
+                background-color: #24377F;
+                width: 0%;
+                transition: width 0.3s;
+                text-align: center;
+                line-height: 20px;
+                color: white;
+                font-weight: bold;
+            `;
+            progressInner.textContent = '0%';
+            
+            progressBar.appendChild(progressInner);
+            progressContainer.appendChild(progressBar);
+            
             // Tebligat Sorgulama butonuna tıklama olayı
             tebligatBtn.addEventListener('click', async function() {
+                // Önce listeyi temizle
+                window.latestTebligatSonuclari = [];
+                window.tebligatSonuclari = [];
+                
+                // İlerleme göstergesini görünür yap
+                progressContainer.style.display = 'block';
+                
+                // Seçili tarih aralığını al
+                const startDate = new Date(document.getElementById('tebligat-start-date').value);
+                const endDate = new Date(document.getElementById('tebligat-end-date').value);
+                
+                // Tarihleri kontrol et
+                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                    alert('Lütfen geçerli bir tarih aralığı seçin.');
+                    progressContainer.style.display = 'none';
+                    return;
+                }
+                
+                if (startDate > endDate) {
+                    alert('Başlangıç tarihi bitiş tarihinden sonra olamaz.');
+                    progressContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Maksimum 3 aylık aralık kontrolü
+                const threeMonthsInMs = 3 * 30 * 24 * 60 * 60 * 1000; // yaklaşık 3 ay
+                if (endDate - startDate > threeMonthsInMs) {
+                    alert('En fazla 3 aylık bir aralık seçebilirsiniz.');
+                    progressContainer.style.display = 'none';
+                    return;
+                }
+                
                 // Güncel dosyaId'yi al
                 const dosyaId = localStorage.getItem('uyap_asistan_current_dosya_id') || localStorage.getItem('uyap_asistan_dosya_id');
                 
                 if (!dosyaId) {
-                    alert('Dosya ID bulunamadı! Lütfen sayfayı yenileyip tekrar deneyin.');
+                    console.error('UYAP Asistan: Dosya ID bulunamadı! Lütfen sayfayı yenileyip tekrar deneyin.');
+                    progressContainer.style.display = 'none';
                     return;
                 }
                 
@@ -505,6 +645,11 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                 tebligatBtn.style.backgroundColor = '#95a5a6';
                 
                 try {
+                    // İlerleme göstergesini başlat
+                    let progress = 10;
+                    progressInner.style.width = progress + '%';
+                    progressInner.textContent = progress + '%';
+                    
                     // Tebligat sorgulaması yap
                     const response = await fetch('https://avukatbeta.uyap.gov.tr/list_dosya_evraklar.ajx', {
                         method: 'POST',
@@ -517,7 +662,17 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                         credentials: 'include' // Include cookies for authentication
                     });
                     
+                    // İlerlemeyi güncelle
+                    progress = 60;
+                    progressInner.style.width = progress + '%';
+                    progressInner.textContent = progress + '%';
+                    
                     const data = await response.json();
+                    
+                    // İlerlemeyi güncelle
+                    progress = 100;
+                    progressInner.style.width = progress + '%';
+                    progressInner.textContent = progress + '%';
                     
                     if (data && data.status === 200) {
                         // Sonuç başarılı
@@ -534,13 +689,152 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                 // Her evrakı kontrol et
                                 evraklar.forEach(evrak => {
                                     if (evrak.tur === 'Kapalı Tebligat') {
-                                        kapaliTebligatlar.push({
-                                            evrakId: evrak.evrakId,
-                                            dosyaId: evrak.dosyaId,
-                                            tur: evrak.tur,
-                                            tarih: evrak.sistemeGonderildigiTarih,
-                                            gonderenKisi: evrak.gonderenYerKisi
-                                        });
+                                        // Tarih filtreleme - onaylandigiTarih'e göre
+                                        if (evrak.onaylandigiTarih) {
+                                            // UYAP'tan gelen tarih formatını konsola yazdır
+                                            console.log(`Evrak tarihi ham hali: ${evrak.onaylandigiTarih} (ID: ${evrak.evrakId})`);
+                                            
+                                            // UYAP'tan gelen tarihi normalize et (sadece gün/ay/yıl dikkate alınsın)
+                                            let evrakDate;
+                                            
+                                            // UYAP'tan gelen tarih formatları farklı olabilir, kontrol et ve düzgün parse et
+                                            if (evrak.onaylandigiTarih.includes('.')) {
+                                                // GG.AA.YYYY formatı (örneğin 15.02.2025)
+                                                const [day, month, year] = evrak.onaylandigiTarih.split('.').map(Number);
+                                                evrakDate = new Date(year, month - 1, day);
+                                            } else if (evrak.onaylandigiTarih.includes('-')) {
+                                                // YYYY-AA-GG formatı (örneğin 2025-02-15)
+                                                const [year, month, day] = evrak.onaylandigiTarih.split('-').map(Number);
+                                                evrakDate = new Date(year, month - 1, day);
+                                            } else if (evrak.onaylandigiTarih.includes('/')) {
+                                                // GG/AA/YYYY formatı (örneğin 15/02/2025)
+                                                const [day, month, year] = evrak.onaylandigiTarih.split('/').map(Number);
+                                                evrakDate = new Date(year, month - 1, day);
+                                            } else {
+                                                // Normal Date constructor ile dene
+                                                evrakDate = new Date(evrak.onaylandigiTarih);
+                                            }
+                                            
+                                            // Zaman kısmını sıfırla (sadece gün/ay/yıl karşılaştırması yapalım)
+                                            const normalizedEvrakDate = new Date(evrakDate.getFullYear(), evrakDate.getMonth(), evrakDate.getDate());
+                                            
+                                            // Inputlardan alınan tarihleri de normalize et
+                                            const normalizedStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+                                            const normalizedEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+                                            
+                                            // Bütün tarihleri ekrana yazdır (debug için)
+                                            console.log(`Evrak için: ${normalizedEvrakDate.toLocaleDateString()} <= ${normalizedEvrakDate.toISOString()}`);
+                                            console.log(`Filtre: ${normalizedStartDate.toLocaleDateString()} - ${normalizedEndDate.toLocaleDateString()}`);
+                                            
+                                            // Normalize edilmiş tarihlerle karşılaştır
+                                            if (normalizedEvrakDate >= normalizedStartDate && normalizedEvrakDate <= normalizedEndDate) {
+                                                // Bu blok içinde tarih filtresi koşulunu karşılayan evraklar işleniyor
+                                                console.log(`✅ Evrak filtre içinde: ${evrak.evrakId} - ${normalizedEvrakDate.toLocaleDateString()}`);
+                                                
+                                                // Elektronik tebligat kontrolü ve diğer işlemler...
+                                                // ... existing evrak işleme kodu ...
+                                                
+                                                // Elektronik tebligat kontrolü
+                                                let isElektronikTebligat = false;
+                                                
+                                                // Aciklama alanı varsa, elektronik tebligat içerip içermediğini kontrol et
+                                                if (evrak.aciklama) {
+                                                    const aciklamaLower = evrak.aciklama.toLowerCase();
+                                                    if (aciklamaLower.includes("elektronik tebligat") || 
+                                                        aciklamaLower.includes("e-tebligat") || 
+                                                        aciklamaLower.includes("ulak") || 
+                                                        aciklamaLower.includes("elektronik tebliğ") ||
+                                                        aciklamaLower.includes("uets")) {
+                                                        
+                                                        isElektronikTebligat = true;
+                                                        
+                                                        // Elektronik tebligat olduğunu konsola yazdır
+                                                        console.log('***********************');
+                                                        console.log('Elektronik Tebligat Tespit Edildi');
+                                                        console.log('Evrak ID:', evrak.evrakId);
+                                                        console.log('Açıklama:', evrak.aciklama);
+                                                        console.log('Tarih:', evrak.sistemeGonderildigiTarih);
+                                                        console.log('Gönderen:', evrak.gonderenYerKisi);
+                                                        console.log('***********************');
+                                                    }
+                                                }
+                                                
+                                                // Alıcı bilgisi için güvenli şekilde regex
+                                                let aliciBilgisi = '';
+                                                if (evrak.aciklama) {
+                                                    const aliciMatch = evrak.aciklama.match(/\[(.*?)\]/);
+                                                    if (aliciMatch && aliciMatch[1]) {
+                                                        aliciBilgisi = aliciMatch[1];
+                                                    }
+                                                }
+                                                
+                                                // Eklenecek evrak bilgilerini hazırla
+                                                kapaliTebligatlar.push({
+                                                    evrakId: evrak.evrakId,
+                                                    dosyaId: evrak.dosyaId,
+                                                    tur: evrak.tur,
+                                                    tarih: evrak.sistemeGonderildigiTarih,
+                                                    gonderenKisi: evrak.gonderenYerKisi,
+                                                    isElektronikTebligat: isElektronikTebligat,
+                                                    dosyaNoIs: evrak.gonderenDosyaNo,
+                                                    aliciBilgisiIs: aliciBilgisi,
+                                                    onaylananTarih: evrak.onaylandigiTarih || ''
+                                                });
+                                            } else {
+                                                console.log(`UYAP Asistan: Tarih filtresi dışında kalan evrak (${evrak.evrakId}): ${evrak.onaylandigiTarih}`);
+                                            }
+                                        } else {
+                                            console.log(`UYAP Asistan: Onaylanma tarihi olmayan evrak (${evrak.evrakId})`);
+                                            // Onaylanma tarihi olmayan evrakları da dahil et
+                                            // ... existing evrak işleme kodu ...
+                                            
+                                            // Elektronik tebligat kontrolü
+                                            let isElektronikTebligat = false;
+                                            
+                                            // Aciklama alanı varsa, elektronik tebligat içerip içermediğini kontrol et
+                                            if (evrak.aciklama) {
+                                                const aciklamaLower = evrak.aciklama.toLowerCase();
+                                                if (aciklamaLower.includes("elektronik tebligat") || 
+                                                    aciklamaLower.includes("e-tebligat") || 
+                                                    aciklamaLower.includes("ulak") || 
+                                                    aciklamaLower.includes("elektronik tebliğ") ||
+                                                    aciklamaLower.includes("uets")) {
+                                                    
+                                                    isElektronikTebligat = true;
+                                                    
+                                                    // Elektronik tebligat olduğunu konsola yazdır
+                                                    console.log('***********************');
+                                                    console.log('Elektronik Tebligat Tespit Edildi');
+                                                    console.log('Evrak ID:', evrak.evrakId);
+                                                    console.log('Açıklama:', evrak.aciklama);
+                                                    console.log('Tarih:', evrak.sistemeGonderildigiTarih);
+                                                    console.log('Gönderen:', evrak.gonderenYerKisi);
+                                                    console.log('***********************');
+                                                }
+                                            }
+                                            
+                                            // Alıcı bilgisi için güvenli şekilde regex
+                                            let aliciBilgisi = '';
+                                            if (evrak.aciklama) {
+                                                const aliciMatch = evrak.aciklama.match(/\[(.*?)\]/);
+                                                if (aliciMatch && aliciMatch[1]) {
+                                                    aliciBilgisi = aliciMatch[1];
+                                                }
+                                            }
+                                            
+                                            // Eklenecek evrak bilgilerini hazırla
+                                            kapaliTebligatlar.push({
+                                                evrakId: evrak.evrakId,
+                                                dosyaId: evrak.dosyaId,
+                                                tur: evrak.tur,
+                                                tarih: evrak.sistemeGonderildigiTarih,
+                                                gonderenKisi: evrak.gonderenYerKisi,
+                                                isElektronikTebligat: isElektronikTebligat,
+                                                dosyaNoIs: evrak.gonderenDosyaNo,
+                                                aliciBilgisiIs: aliciBilgisi,
+                                                onaylananTarih: evrak.onaylandigiTarih || ''
+                                            });
+                                        }
                                     }
                                 });
                             }
@@ -553,13 +847,152 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                     // Eğer bu evrak zaten listeye eklenmemişse ekle
                                     const varMi = kapaliTebligatlar.some(item => item.evrakId === evrak.evrakId);
                                     if (!varMi) {
-                                        kapaliTebligatlar.push({
-                                            evrakId: evrak.evrakId,
-                                            dosyaId: evrak.dosyaId,
-                                            tur: evrak.tur,
-                                            tarih: evrak.sistemeGonderildigiTarih,
-                                            gonderenKisi: evrak.gonderenYerKisi
-                                        });
+                                        // Tarih filtreleme - onaylandigiTarih'e göre
+                                        if (evrak.onaylandigiTarih) {
+                                            // UYAP'tan gelen tarih formatını konsola yazdır
+                                            console.log(`Son20 Evrak tarihi ham hali: ${evrak.onaylandigiTarih} (ID: ${evrak.evrakId})`);
+                                            
+                                            // UYAP'tan gelen tarihi normalize et (sadece gün/ay/yıl dikkate alınsın)
+                                            let evrakDate;
+                                            
+                                            // UYAP'tan gelen tarih formatları farklı olabilir, kontrol et ve düzgün parse et
+                                            if (evrak.onaylandigiTarih.includes('.')) {
+                                                // GG.AA.YYYY formatı (örneğin 15.02.2025)
+                                                const [day, month, year] = evrak.onaylandigiTarih.split('.').map(Number);
+                                                evrakDate = new Date(year, month - 1, day);
+                                            } else if (evrak.onaylandigiTarih.includes('-')) {
+                                                // YYYY-AA-GG formatı (örneğin 2025-02-15)
+                                                const [year, month, day] = evrak.onaylandigiTarih.split('-').map(Number);
+                                                evrakDate = new Date(year, month - 1, day);
+                                            } else if (evrak.onaylandigiTarih.includes('/')) {
+                                                // GG/AA/YYYY formatı (örneğin 15/02/2025)
+                                                const [day, month, year] = evrak.onaylandigiTarih.split('/').map(Number);
+                                                evrakDate = new Date(year, month - 1, day);
+                                            } else {
+                                                // Normal Date constructor ile dene
+                                                evrakDate = new Date(evrak.onaylandigiTarih);
+                                            }
+                                            
+                                            // Zaman kısmını sıfırla (sadece gün/ay/yıl karşılaştırması yapalım)
+                                            const normalizedEvrakDate = new Date(evrakDate.getFullYear(), evrakDate.getMonth(), evrakDate.getDate());
+                                            
+                                            // Inputlardan alınan tarihleri de normalize et
+                                            const normalizedStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+                                            const normalizedEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+                                            
+                                            // Bütün tarihleri ekrana yazdır (debug için)
+                                            console.log(`Son20 Evrak için: ${normalizedEvrakDate.toLocaleDateString()} <= ${normalizedEvrakDate.toISOString()}`);
+                                            
+                                            // Normalize edilmiş tarihlerle karşılaştır
+                                            if (normalizedEvrakDate >= normalizedStartDate && normalizedEvrakDate <= normalizedEndDate) {
+                                                // Bu blok içinde tarih filtresi koşulunu karşılayan evraklar işleniyor
+                                                console.log(`✅ Son20 Evrak filtre içinde: ${evrak.evrakId} - ${normalizedEvrakDate.toLocaleDateString()}`);
+                                                
+                                                // Elektronik tebligat kontrolü ve diğer işlemler...
+                                                // ... existing evrak işleme kodu ...
+                                                
+                                                // Elektronik tebligat kontrolü
+                                                let isElektronikTebligat = false;
+                                                
+                                                // Aciklama alanı varsa, elektronik tebligat içerip içermediğini kontrol et
+                                                if (evrak.aciklama) {
+                                                    const aciklamaLower = evrak.aciklama.toLowerCase();
+                                                    if (aciklamaLower.includes("elektronik tebligat") || 
+                                                        aciklamaLower.includes("e-tebligat") || 
+                                                        aciklamaLower.includes("ulak") || 
+                                                        aciklamaLower.includes("elektronik tebliğ") ||
+                                                        aciklamaLower.includes("uets")) {
+                                                        
+                                                        isElektronikTebligat = true;
+                                                        
+                                                        // Elektronik tebligat olduğunu konsola yazdır
+                                                        console.log('***********************');
+                                                        console.log('Elektronik Tebligat Tespit Edildi');
+                                                        console.log('Evrak ID:', evrak.evrakId);
+                                                        console.log('Açıklama:', evrak.aciklama);
+                                                        console.log('Tarih:', evrak.sistemeGonderildigiTarih);
+                                                        console.log('Gönderen:', evrak.gonderenYerKisi);
+                                                        console.log('***********************');
+                                                    }
+                                                }
+                                                
+                                                // Alıcı bilgisi için güvenli şekilde regex
+                                                let aliciBilgisi = '';
+                                                if (evrak.aciklama) {
+                                                    const aliciMatch = evrak.aciklama.match(/\[(.*?)\]/);
+                                                    if (aliciMatch && aliciMatch[1]) {
+                                                        aliciBilgisi = aliciMatch[1];
+                                                    }
+                                                }
+                                                
+                                                // Eklenecek evrak bilgilerini hazırla
+                                                kapaliTebligatlar.push({
+                                                    evrakId: evrak.evrakId,
+                                                    dosyaId: evrak.dosyaId,
+                                                    tur: evrak.tur,
+                                                    tarih: evrak.sistemeGonderildigiTarih,
+                                                    gonderenKisi: evrak.gonderenYerKisi,
+                                                    isElektronikTebligat: isElektronikTebligat,
+                                                    dosyaNoIs: evrak.gonderenDosyaNo,
+                                                    aliciBilgisiIs: aliciBilgisi,
+                                                    onaylananTarih: evrak.onaylandigiTarih || ''
+                                                });
+                                            } else {
+                                                console.log(`UYAP Asistan: Tarih filtresi dışında kalan evrak (son20) (${evrak.evrakId}): ${evrak.onaylandigiTarih}`);
+                                            }
+                                        } else {
+                                            console.log(`UYAP Asistan: Onaylanma tarihi olmayan evrak (son20) (${evrak.evrakId})`);
+                                            // Onaylanma tarihi olmayan evrakları da dahil et
+                                            // ... existing evrak işleme kodu ...
+                                            
+                                            // Elektronik tebligat kontrolü
+                                            let isElektronikTebligat = false;
+                                            
+                                            // Aciklama alanı varsa, elektronik tebligat içerip içermediğini kontrol et
+                                            if (evrak.aciklama) {
+                                                const aciklamaLower = evrak.aciklama.toLowerCase();
+                                                if (aciklamaLower.includes("elektronik tebligat") || 
+                                                    aciklamaLower.includes("e-tebligat") || 
+                                                    aciklamaLower.includes("ulak") || 
+                                                    aciklamaLower.includes("elektronik tebliğ") ||
+                                                    aciklamaLower.includes("uets")) {
+                                                    
+                                                    isElektronikTebligat = true;
+                                                    
+                                                    // Elektronik tebligat olduğunu konsola yazdır
+                                                    console.log('***********************');
+                                                    console.log('Elektronik Tebligat Tespit Edildi');
+                                                    console.log('Evrak ID:', evrak.evrakId);
+                                                    console.log('Açıklama:', evrak.aciklama);
+                                                    console.log('Tarih:', evrak.sistemeGonderildigiTarih);
+                                                    console.log('Gönderen:', evrak.gonderenYerKisi);
+                                                    console.log('***********************');
+                                                }
+                                            }
+                                            
+                                            // Alıcı bilgisi için güvenli şekilde regex
+                                            let aliciBilgisi = '';
+                                            if (evrak.aciklama) {
+                                                const aliciMatch = evrak.aciklama.match(/\[(.*?)\]/);
+                                                if (aliciMatch && aliciMatch[1]) {
+                                                    aliciBilgisi = aliciMatch[1];
+                                                } else {
+                                                    aliciBilgisi = evrak.aciklama;
+                                                }
+                                            }
+                                            
+                                            kapaliTebligatlar.push({
+                                                evrakId: evrak.evrakId,
+                                                dosyaId: evrak.dosyaId,
+                                                tur: evrak.tur,
+                                                tarih: evrak.sistemeGonderildigiTarih,
+                                                gonderenKisi: evrak.gonderenYerKisi,
+                                                isElektronikTebligat: isElektronikTebligat,
+                                                dosyaNoIs: evrak.gonderenDosyaNo,
+                                                aliciBilgisiIs: aliciBilgisi,
+                                                onaylananTarih: evrak.onaylandigiTarih || ''
+                                            });
+                                        }
                                     }
                                 }
                             });
@@ -569,7 +1002,14 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                         
                         // Tespit edilen tebligatlar hakkında kullanıcıyı bilgilendir
                         if (kapaliTebligatlar.length > 0) {
-                            alert(`${kapaliTebligatlar.length} adet kapalı tebligat bulundu. İndirme işlemi başlatılıyor...`);
+                            console.log(`UYAP Asistan: ${kapaliTebligatlar.length} adet kapalı tebligat bulundu. İndirme işlemi başlatılıyor...`);
+                            
+                            // Tebligat sonuçlarını saklamak için dizi
+                            const tebligatSonuclari = [];
+                            
+                            // Başlangıç ilerleme değeri ve tebligat başına düşen ilerleme miktarını hesapla
+                            let progress = 60;  // Bu noktada zaten %60'a kadar gelmişiz
+                            const progressPerTebligat = kapaliTebligatlar.length > 0 ? (35 / kapaliTebligatlar.length) : 35;
                             
                             // Her kapalı tebligat için indir
                             for (const tebligat of kapaliTebligatlar) {
@@ -582,7 +1022,7 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                     // fetch ile belgeyi indir (ağ bölümünde görünsün diye)
                                     fetch(downloadUrl, {
                                         method: 'GET',
-                                        credentials: 'include'
+                                        credentials: 'include' // Include cookies for authentication
                                     }).then(async response => {
                                         if (response.ok) {
                                             console.log(`UYAP Asistan: Tebligat başarıyla indirildi: ${tebligat.evrakId}`);
@@ -599,8 +1039,153 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                                 const base64Data = reader.result.split(',')[1];
                                                 
                                                 try {
-                                                    // Base64 verisini işle ve PTT sorgusu yap
-                                                    await processBarcodeAndCheckPTT(base64Data);
+                                                    // Önce barkod numarasını al
+                                                    const barkodResult = await sendBase64ToPdfServer(base64Data);
+                                                    
+                                                    if (barkodResult.success) {
+                                                        const barcodeNumber = barkodResult.data.barcodeNumber;
+                                                        
+                                                        // Tebligat sonucu için temel veri yapısını oluştur
+                                                        const tebligatSonuc = {
+                                                            yargiBirimi: tebligat.gonderenKisi || 'Belirtilmemiş',
+                                                            dosyaNo: tebligat.dosyaNoIs || 'Belirtilmemiş',
+                                                            barkodNo: barcodeNumber,
+                                                            aliciBilgisi: tebligat.aliciBilgisiIs || 'Belirtilmemiş',
+                                                            gonderimDurumu: '',
+                                                            gonderimAciklamasi: '',
+                                                            teslimTarihi: '',
+                                                            isElektronikTebligat: tebligat.isElektronikTebligat
+                                                        };
+                                                        
+                                                        // Eğer elektronik tebligat ise
+                                                        if (tebligat.isElektronikTebligat) {
+                                                            tebligatSonuc.gonderimDurumu = 'Elektronik Tebligat';
+                                                            tebligatSonuc.gonderimAciklamasi = 'UETS';
+                                                            tebligatSonuc.teslimTarihi = tebligat.onaylananTarih || '';
+                                                            
+                                                            // Sonuçları listeye ekle
+                                                            tebligatSonuclari.push(tebligatSonuc);
+                                                            
+                                                            // İlerlemeyi güncelle
+                                                            progress += progressPerTebligat;
+                                                            progressInner.style.width = Math.min(95, progress) + '%';
+                                                            progressInner.textContent = Math.min(95, Math.round(progress)) + '%';
+                                                            
+                                                            // Tabloyu güncelle
+                                                            updateTebligatTable(tebligatSonuclari);
+                                                            
+                                                            console.log('***********************');
+                                                            console.log('Elektronik Tebligat Barkod Numarası:', barcodeNumber);
+                                                            console.log('Evrak ID:', tebligat.evrakId);
+                                                            console.log('***********************');
+                                                        } else {
+                                                            // Normal tebligat ise PTT sorgusu yap
+                                                            try {
+                                                                const response = await fetch('https://avukatbeta.uyap.gov.tr/mts_tebligat_safahat_list_brd.ajx', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json',
+                                                                    },
+                                                                    body: JSON.stringify({
+                                                                        barkodNo: barcodeNumber
+                                                                    })
+                                                                });
+
+                                                                if (response.ok) {
+                                                                    const pttData = await response.json();
+                                                                    
+                                                                    // MTS'den hata döndüyse (errorCode veya error var ise)
+                                                                    if (pttData.errorCode || pttData.error) {
+                                                                        console.log('MTS Hatası:', pttData.error || 'MTS Tebligat durumu alınamadı');
+                                                                        // Hata durumunda gönderim durumunu "Gönderim Aşamasında" olarak ayarla
+                                                                        tebligatSonuc.gonderimDurumu = 'Gönderim Aşamasında';
+                                                                        tebligatSonuc.gonderimAciklamasi = 'PTT tebligatı henüz işleme koymadı';
+                                                                    } 
+                                                                    // Normal veri döndüyse işleme devam et
+                                                                    else if (Array.isArray(pttData) && pttData.length > 0) {
+                                                                        // Alıcı bilgilerini çek
+                                                                        const aciklamaItem = pttData.find(item => item.aciklama && item.aciklama.includes('[') && item.aciklama.includes(']'));
+                                                                        if (aciklamaItem) {
+                                                                            const aciklama = aciklamaItem.aciklama;
+                                                                            const aliciMatch = aciklama.match(/\[(.*?)\]/);
+                                                                            if (aliciMatch && aliciMatch[1]) {
+                                                                                tebligatSonuc.aliciBilgisi = aliciMatch[1];
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        // Belirli açıklamalara sahip OLMAYAN öğeleri bul
+                                                                        const hariçTutulacakAçıklamalar = [
+                                                                            "Kabul Edildi", 
+                                                                            "Torbaya Eklendi", 
+                                                                            "Gönderinin Geliş Kaydı Yapıldı", 
+                                                                            "Dağıtıcıya Verildi", 
+                                                                            "Göndericisine Teslim Edildi", 
+                                                                            "Köy Dağıtımına Tabi Bekliyor",
+                                                                            "Cihet Hazırlama Listesine Eklendi",
+                                                                            "MAZBATA TESLİM",
+                                                                            "Cihetten Gönderi Çıkarıldı",
+                                                                            "Gönderi Akıbeti Araştırılıyor",
+                                                                            "Depodan Gönderi Çıkartıldı",
+                                                                            "Zimmet Edildi"
+                                                                        ];
+                                                                        
+                                                                        const durumItem = pttData.find(item => 
+                                                                            item.aciklama && 
+                                                                            !hariçTutulacakAçıklamalar.some(hariç => 
+                                                                                item.aciklama.includes(hariç)
+                                                                            )
+                                                                        );
+                                                                        
+                                                                        if (durumItem) {
+                                                                            tebligatSonuc.gonderimDurumu = durumItem.islemTipAdi || 'Belirtilmemiş';
+                                                                            tebligatSonuc.gonderimAciklamasi = durumItem.aciklama || 'Belirtilmemiş';
+                                                                            // Tarih bilgisini gonderimTarihi olarak kaydet (tabloda gösterilmeyecek)
+                                                                            if (durumItem.tarih) {
+                                                                                tebligatSonuc.gonderimTarihi = durumItem.tarih;
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        // Teslim tarihini bul
+                                                                        const teslimItem = pttData.find(item => 
+                                                                            (item.islemTipAdi && item.islemTipAdi.toLowerCase().includes('teslim')) || 
+                                                                            (item.aciklama && item.aciklama.toLowerCase().includes('teslim')) ||
+                                                                            (item.islemTipKodu && item.islemTipKodu === 'TESLIM')
+                                                                        );
+                                                                        
+                                                                        if (teslimItem && teslimItem.tarih) {
+                                                                            tebligatSonuc.teslimTarihi = teslimItem.tarih;
+                                                                        } else if (tebligatSonuc.gonderimTarihi) {
+                                                                            // Eğer teslim tarihi bulunmazsa gönderim tarihini kullan
+                                                                            tebligatSonuc.teslimTarihi = tebligatSonuc.gonderimTarihi;
+                                                                        }
+                                                                    } else {
+                                                                        // Veri boş gelirse "Gönderim Aşamasında" olarak işaretle
+                                                                        tebligatSonuc.gonderimDurumu = 'Gönderim Aşamasında';
+                                                                        tebligatSonuc.gonderimAciklamasi = 'PTT tebligatı henüz işleme koymadı';
+                                                                    }
+                                                                } else {
+                                                                    // Yanıt başarısız ise "Gönderim Aşamasında" olarak işaretle
+                                                                    tebligatSonuc.gonderimDurumu = 'Gönderim Aşamasında';
+                                                                    tebligatSonuc.gonderimAciklamasi = 'PTT tebligatı henüz işleme koymadı';
+                                                                }
+                                                            } catch (error) {
+                                                                console.error('PTT sorgusu sırasında hata oluştu:', error);
+                                                            }
+                                                            
+                                                            // Sonuçları listeye ekle
+                                                            tebligatSonuclari.push(tebligatSonuc);
+                                                            
+                                                            // İlerlemeyi güncelle
+                                                            progress += progressPerTebligat;
+                                                            progressInner.style.width = Math.min(95, progress) + '%';
+                                                            progressInner.textContent = Math.min(95, Math.round(progress)) + '%';
+                                                            
+                                                            // Tabloyu güncelle
+                                                            updateTebligatTable(tebligatSonuclari);
+                                                        }
+                                                    } else {
+                                                        console.error('Barkod bulunamadı:', barkodResult.error);
+                                                    }
                                                 } catch (error) {
                                                     console.error('UYAP Asistan: İşlem hatası:', error);
                                                 }
@@ -620,18 +1205,139 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
                                 }
                             }
                             
-                            alert('Tebligat indirme işlemleri tamamlandı. Ağ sekmesini kontrol edebilirsiniz.');
+                            console.log('UYAP Asistan: Tebligat indirme işlemleri tamamlandı. Ağ sekmesini kontrol edebilirsiniz.');
+                            
+                            // Tebligat sorgusu tamamlandığında ilerleme çubuğunu tamamla
+                            progressInner.style.width = '100%';
+                            progressInner.textContent = '100%';
+                            
+                            // 1 saniye sonra ilerleme çubuğunu gizle
+                            setTimeout(() => {
+                                progressContainer.style.display = 'none';
+                            }, 1000);
+                            
+                            // Buton durumunu normal haline getir
+                            tebligatBtn.disabled = false;
+                            tebligatBtn.textContent = 'Tebligat Sorgulama';
+                            tebligatBtn.style.backgroundColor = '#24377F';
+                            
+                            // Tebligat sorgusu tamamlandığında tablonun görünür olduğundan emin ol
+                            const activeTab = document.querySelector('.file-tracking-tab-content.active');
+                            if (activeTab) {
+                                // Önceki tabloyu temizle
+                                const existingTable = activeTab.querySelector('.tebligat-table-container');
+                                if (existingTable) {
+                                    existingTable.remove();
+                                }
+                                
+                                // Yeni tablo container'ı oluştur
+                                const tableContainer = document.createElement('div');
+                                tableContainer.className = 'tebligat-table-container mt-3';
+                                tableContainer.innerHTML = `
+                                    <h4 class="text-center mb-3">Tebligat Durumları</h4>
+                                    
+                                    <div class="mb-3 d-flex justify-content-between">
+                                        <div class="flex-grow-1 me-2">
+                                            <input type="text" id="tebligat-search" class="form-control" placeholder="Tebligat tablosunda ara...">
+                                        </div>
+                                        <div>
+                                            <button id="export-excel-btn" class="btn btn-success btn-sm">
+                                                <i class="fas fa-file-excel me-1"></i> Excel'e Aktar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-bordered">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th data-sort="yargiBirimi" class="sortable">Yargı Birimi <i class="fas fa-sort"></i></th>
+                                                    <th data-sort="dosyaNo" class="sortable">Dosya No <i class="fas fa-sort"></i></th>
+                                                    <th data-sort="barkodNo" class="sortable">Barkod No <i class="fas fa-sort"></i></th>
+                                                    <th data-sort="aliciBilgisi" class="sortable">Alıcı Bilgileri <i class="fas fa-sort"></i></th>
+                                                    <th data-sort="gonderimAciklamasi">Gönderim Açıklaması</th>
+                                                    <th data-sort="teslimTarihi" class="sortable">Teslim Tarihi <i class="fas fa-sort"></i></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tebligat-table-body">
+                                                <tr>
+                                                    <td colspan="6" class="text-center">
+                                                        <div class="spinner-border text-primary" role="status">
+                                                            <span class="visually-hidden">Yükleniyor...</span>
+                                                        </div>
+                                                        <p class="mt-2">Tebligat bilgileri yükleniyor...</p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="mt-3 text-center d-none" id="tebligat-summary">
+                                        <span class="badge bg-success me-2">Toplam: <span id="total-count">0</span></span>
+                                        <span class="badge bg-info me-2">Elektronik: <span id="elektronik-count">0</span></span>
+                                        <span class="badge bg-warning">Normal: <span id="normal-count">0</span></span>
+                                    </div>
+                                `;
+                                
+                                activeTab.appendChild(tableContainer);
+                                
+                                // Arama işlevselliğini ekle
+                                const searchInput = tableContainer.querySelector('#tebligat-search');
+                                if (searchInput) {
+                                    searchInput.addEventListener('keyup', function() {
+                                        filterTebligatTable(this.value);
+                                    });
+                                }
+                                
+                                // Excel'e aktarma işlevselliğini ekle
+                                const exportBtn = tableContainer.querySelector('#export-excel-btn');
+                                if (exportBtn) {
+                                    exportBtn.addEventListener('click', function() {
+                                        exportTableToExcel();
+                                    });
+                                }
+                                
+                                // Sıralama işlevselliğini ekle
+                                const sortableThs = tableContainer.querySelectorAll('th.sortable');
+                                sortableThs.forEach(th => {
+                                    th.addEventListener('click', function() {
+                                        const sortField = this.getAttribute('data-sort');
+                                        sortTebligatTable(sortField);
+                                        
+                                        // Simgeyi güncelle
+                                        const icon = this.querySelector('i');
+                                        if (icon.classList.contains('fa-sort')) {
+                                            // İlk tıklama - artan sıralama
+                                            sortableThs.forEach(h => h.querySelector('i').className = 'fas fa-sort');
+                                            icon.className = 'fas fa-sort-up';
+                                            th.setAttribute('data-sort-dir', 'asc');
+                                        } else if (icon.classList.contains('fa-sort-up')) {
+                                            // İkinci tıklama - azalan sıralama
+                                            icon.className = 'fas fa-sort-down';
+                                            th.setAttribute('data-sort-dir', 'desc');
                         } else {
-                            alert('Kapalı tebligat bulunamadı!');
+                                            // Üçüncü tıklama - sıralama kaldır
+                                            icon.className = 'fas fa-sort';
+                                            th.removeAttribute('data-sort-dir');
+                                        }
+                                    });
+                                });
+                                
+                                // İlk tabloyu güncelle
+                                updateTebligatTable(tebligatSonuclari);
+                            }
+                        } else {
+                            console.log('UYAP Asistan: Kapalı tebligat bulunamadı.');
+                            alert('Dosyada kapalı tebligat bulunamadı.');
                         }
                     } else {
                         // Hata durumu
-                        alert('Tebligat sorgulaması sırasında bir hata oluştu!');
+                        console.error('UYAP Asistan: Tebligat sorgulaması sırasında bir hata oluştu!');
                         console.error('UYAP Asistan: Tebligat sorgulaması hatası:', data);
                     }
                 } catch (error) {
                     // İstek hatası
-                    alert('Tebligat sorgulaması yapılırken bir hata oluştu!');
+                    console.error('UYAP Asistan: Tebligat sorgulaması yapılırken bir hata oluştu!');
                     console.error('UYAP Asistan: Tebligat sorgulaması istek hatası:', error);
                 } finally {
                     // Buton durumunu eski haline getir
@@ -651,7 +1357,9 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
             explanation.textContent = 'Bu buton, dosyanıza ait tebligat bilgilerini sorgulamak için kullanılabilir.';
             
             // Elemanları container'a ekle
+            scanContainer.appendChild(dateFilterContainer);
             scanContainer.appendChild(tebligatBtn);
+            scanContainer.appendChild(progressContainer);
             scanContainer.appendChild(explanation);
             
             // Container'ı tab içeriğine ekle
@@ -712,6 +1420,241 @@ function showFileTrackingPopup(fileInfo, dosyaId, isReload = false) {
         if (event.key === 'Escape' && overlay.parentNode) {
             removeBlur();
         }
+    });
+}
+
+// Tebligat tablosunu güncellemek için yardımcı fonksiyon
+function updateTebligatTable(tebligatSonuclari) {
+    const tableBody = document.getElementById('tebligat-table-body');
+    const summary = document.getElementById('tebligat-summary');
+    
+    // Tablo gövdesi yoksa sessizce çık
+    if (!tableBody) {
+        return;
+    }
+    
+    console.log(`UYAP Asistan: Tablo güncelleniyor... ${tebligatSonuclari.length} adet tebligat var.`);
+    
+    // Tabloyu temizle
+    tableBody.innerHTML = '';
+    
+    // Sonuçları tabloya ekle
+    if (tebligatSonuclari.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center">Tebligat bilgisi bulunamadı</td></tr>`;
+        if (summary) summary.classList.add('d-none');
+        return;
+    }
+    
+    // İstatistikler
+    let elektronikCount = 0;
+    let normalCount = 0;
+    let teslimCount = 0;
+    let teslimBekleyenCount = 0;
+    let iadeCount = 0;
+    
+    tebligatSonuclari.forEach(sonuc => {
+        const row = document.createElement('tr');
+        
+        // İade kontrolü
+        const isIade = sonuc.gonderimAciklamasi && 
+                      (sonuc.gonderimAciklamasi.toUpperCase().includes('IADE') || 
+                       sonuc.gonderimAciklamasi.toUpperCase().includes('İADE'));
+        
+        // Stil uygulamaları
+        if (sonuc.isElektronikTebligat) {
+            // Elektronik tebligat için mavi stil
+            row.classList.add('table-info');
+            elektronikCount++;
+        } else if (isIade) {
+            // İade edilmiş tebligat için kırmızı stil
+            row.classList.add('table-danger');
+            normalCount++;
+            iadeCount++;
+        } else if (sonuc.teslimTarihi && sonuc.teslimTarihi.trim() !== '-' && sonuc.teslimTarihi.trim() !== '') {
+            // Teslim edilmiş tebligat için yeşil stil
+            row.classList.add('table-success');
+            normalCount++;
+            teslimCount++;
+        } else {
+            // Henüz teslim edilmemiş tebligat için kırmızı stil
+            row.classList.add('table-danger');
+            normalCount++;
+            teslimBekleyenCount++;
+        }
+        
+        row.innerHTML = `
+            <td>${sonuc.yargiBirimi || '-'}</td>
+            <td>${sonuc.dosyaNo || '-'}</td>
+            <td>${sonuc.barkodNo || '-'}</td>
+            <td>${sonuc.aliciBilgisi || '-'}</td>
+            <td>${sonuc.gonderimAciklamasi || '-'}</td>
+            <td>${sonuc.teslimTarihi || '-'}</td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    // Özet bilgileri göster
+    if (summary) {
+        document.getElementById('total-count').textContent = tebligatSonuclari.length;
+        document.getElementById('elektronik-count').textContent = elektronikCount;
+        document.getElementById('normal-count').textContent = normalCount;
+        summary.classList.remove('d-none');
+    }
+    
+    // Global tebligat sonuçları değişkenini güncelle
+    window.latestTebligatSonuclari = tebligatSonuclari;
+}
+
+// Tebligat tablosunda arama yapmak için fonksiyon
+function filterTebligatTable(searchText) {
+    if (!window.latestTebligatSonuclari) return;
+    
+    const filteredResults = window.latestTebligatSonuclari.filter(sonuc => {
+        const searchLower = searchText.toLowerCase();
+        return (
+            (sonuc.yargiBirimi && sonuc.yargiBirimi.toLowerCase().includes(searchLower)) ||
+            (sonuc.dosyaNo && sonuc.dosyaNo.toLowerCase().includes(searchLower)) ||
+            (sonuc.barkodNo && sonuc.barkodNo.toLowerCase().includes(searchLower)) ||
+            (sonuc.aliciBilgisi && sonuc.aliciBilgisi.toLowerCase().includes(searchLower)) ||
+            (sonuc.gonderimAciklamasi && sonuc.gonderimAciklamasi.toLowerCase().includes(searchLower)) ||
+            (sonuc.teslimTarihi && sonuc.teslimTarihi.toLowerCase().includes(searchLower))
+        );
+    });
+    
+    // Tablo gövdesini güncelle
+    const tableBody = document.getElementById('tebligat-table-body');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    if (filteredResults.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center">Arama kriterine uygun tebligat bulunamadı</td></tr>`;
+        return;
+    }
+    
+    // Sayaçlar
+    let elektronikCount = 0;
+    let teslimCount = 0;
+    let teslimBekleyenCount = 0;
+    let iadeCount = 0;
+    
+    filteredResults.forEach(sonuc => {
+        const row = document.createElement('tr');
+        
+        // İade kontrolü
+        const isIade = sonuc.gonderimAciklamasi && 
+                      (sonuc.gonderimAciklamasi.toUpperCase().includes('IADE') || 
+                       sonuc.gonderimAciklamasi.toUpperCase().includes('İADE'));
+        
+        // Stil uygulamaları
+        if (sonuc.isElektronikTebligat) {
+            // Elektronik tebligat için mavi stil
+            row.classList.add('table-info');
+            elektronikCount++;
+        } else if (isIade) {
+            // İade edilmiş tebligat için kırmızı stil
+            row.classList.add('table-danger');
+            iadeCount++;
+        } else if (sonuc.teslimTarihi && sonuc.teslimTarihi.trim() !== '-' && sonuc.teslimTarihi.trim() !== '') {
+            // Teslim edilmiş tebligat için yeşil stil
+            row.classList.add('table-success');
+            teslimCount++;
+        } else {
+            // Henüz teslim edilmemiş tebligat için kırmızı stil
+            row.classList.add('table-danger');
+            teslimBekleyenCount++;
+        }
+        
+        row.innerHTML = `
+            <td>${sonuc.yargiBirimi || '-'}</td>
+            <td>${sonuc.dosyaNo || '-'}</td>
+            <td>${sonuc.barkodNo || '-'}</td>
+            <td>${sonuc.aliciBilgisi || '-'}</td>
+            <td>${sonuc.gonderimAciklamasi || '-'}</td>
+            <td>${sonuc.teslimTarihi || '-'}</td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    // Özet bilgilerini güncelle
+    const summary = document.getElementById('tebligat-summary');
+    if (summary) {
+        document.getElementById('total-count').textContent = filteredResults.length;
+        document.getElementById('elektronik-count').textContent = elektronikCount;
+        document.getElementById('normal-count').textContent = filteredResults.length - elektronikCount;
+    }
+}
+
+// Tebligat tablosunu sıralamak için fonksiyon
+function sortTebligatTable(field) {
+    if (!window.latestTebligatSonuclari) return;
+    
+    const th = document.querySelector(`th[data-sort="${field}"]`);
+    const sortDir = th.getAttribute('data-sort-dir') || 'asc';
+    
+    // Sıralama yönüne göre sırala
+    const sortedResults = [...window.latestTebligatSonuclari].sort((a, b) => {
+        const valA = (a[field] || '').toString().toLowerCase();
+        const valB = (b[field] || '').toString().toLowerCase();
+        
+        if (sortDir === 'asc') {
+            return valA.localeCompare(valB, 'tr');
+        } else {
+            return valB.localeCompare(valA, 'tr');
+        }
+    });
+    
+    // Tablo gövdesini güncelle
+    const tableBody = document.getElementById('tebligat-table-body');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    // Sayaçlar
+    let elektronikCount = 0;
+    let teslimCount = 0;
+    let teslimBekleyenCount = 0;
+    let iadeCount = 0;
+    
+    sortedResults.forEach(sonuc => {
+        const row = document.createElement('tr');
+        
+        // İade kontrolü
+        const isIade = sonuc.gonderimAciklamasi && 
+                      (sonuc.gonderimAciklamasi.toUpperCase().includes('IADE') || 
+                       sonuc.gonderimAciklamasi.toUpperCase().includes('İADE'));
+        
+        // Stil uygulamaları
+        if (sonuc.isElektronikTebligat) {
+            // Elektronik tebligat için mavi stil
+            row.classList.add('table-info');
+            elektronikCount++;
+        } else if (isIade) {
+            // İade edilmiş tebligat için kırmızı stil
+            row.classList.add('table-danger');
+            iadeCount++;
+        } else if (sonuc.teslimTarihi && sonuc.teslimTarihi.trim() !== '-' && sonuc.teslimTarihi.trim() !== '') {
+            // Teslim edilmiş tebligat için yeşil stil
+            row.classList.add('table-success');
+            teslimCount++;
+        } else {
+            // Henüz teslim edilmemiş tebligat için kırmızı stil
+            row.classList.add('table-danger');
+            teslimBekleyenCount++;
+        }
+        
+        row.innerHTML = `
+            <td>${sonuc.yargiBirimi || '-'}</td>
+            <td>${sonuc.dosyaNo || '-'}</td>
+            <td>${sonuc.barkodNo || '-'}</td>
+            <td>${sonuc.aliciBilgisi || '-'}</td>
+            <td>${sonuc.gonderimAciklamasi || '-'}</td>
+            <td>${sonuc.teslimTarihi || '-'}</td>
+        `;
+        
+        tableBody.appendChild(row);
     });
 }
 
@@ -1341,6 +2284,100 @@ function loadFontAwesome() {
     }
 }
 
+// Dosya takip için CSS stillerini yükle
+function loadFileTrackingStyles() {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .tebligat-table-container {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .tebligat-table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tebligat-table-container th {
+            background-color: #343a40;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 12px 8px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .tebligat-table-container th.sortable:hover {
+            background-color: #495057;
+        }
+        
+        .tebligat-table-container th i {
+            margin-left: 5px;
+            font-size: 12px;
+        }
+        
+        .tebligat-table-container td {
+            padding: 10px 8px;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        
+        .tebligat-table-container tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .tebligat-table-container tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        
+        .tebligat-table-container .table-info {
+            background-color: #d1ecf1 !important;
+        }
+        
+        .tebligat-table-container .table-info:hover {
+            background-color: #bee5eb !important;
+        }
+        
+        .tebligat-table-container h4 {
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        #tebligat-search {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        #tebligat-search:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        #tebligat-summary {
+            font-size: 14px;
+        }
+        
+        #tebligat-summary .badge {
+            font-size: 85%;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+        
+        .spinner-border {
+            width: 2rem;
+            height: 2rem;
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
+
 class FileTracking {
     constructor() {
         console.log('UYAP Asistan: File Tracking Manager oluşturuldu');
@@ -1350,6 +2387,8 @@ class FileTracking {
         
         // Dosya takip butonu ekleme işlemini periyodik olarak kontrol et
         setInterval(addFileTrackingButton, 2000);
+        
+        loadFileTrackingStyles(); // CSS stillerini yükle
     }
     
     // Dosya ID yakalama olayını dinle
@@ -3171,6 +4210,12 @@ async function checkPTTStatus(barcodeNumber) {
 
         const data = await response.json();
         
+        // Normal tebligat veri yapısını konsola yazdır
+        console.log('***********************');
+        console.log('Normal Tebligat:');
+        console.log('Barkod Numarası:', barcodeNumber);
+        console.log('***********************');
+        
         if (!Array.isArray(data) || data.length === 0) {
             console.log('PTT tarafından evrak kaydı yapılmamıştır');
             return;
@@ -3196,7 +4241,70 @@ async function processBarcodeAndCheckPTT(base64Data) {
             const barcodeNumber = result.data.barcodeNumber;
             console.log('Barkod Numarası:', barcodeNumber);
 
-            // Barkod numarası ile PTT sorgusu yap
+            // Elektronik tebligat kontrolü
+            try {
+                const response = await fetch('https://avukatbeta.uyap.gov.tr/mts_tebligat_safahat_list_brd.ajx', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        barkodNo: barcodeNumber
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('PTT sorgusu başarısız oldu');
+                }
+
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    // Her öğeyi kontrol et ve elektronik tebligat olup olmadığını belirle
+                    let isElektronikTebligat = false;
+                    let tebligatBilgisi = null;
+                    
+                    // Tüm veri öğelerini döngü ile kontrol et
+                    for (const item of data) {
+                        // Tüm özellikleri kontrol et
+                        Object.entries(item).forEach(([key, value]) => {
+                            if (value && typeof value === 'string') {
+                                const valueLower = value.toLowerCase();
+                                
+                                // Elektronik tebligat ile ilgili anahtar kelimeleri ara
+                                if (valueLower.includes("elektronik tebligat") || 
+                                    valueLower.includes("e-tebligat") ||
+                                    valueLower.includes("ulak") || 
+                                    valueLower.includes("elektronik tebliğ") ||
+                                    valueLower.includes("uets")) {
+                                    
+                                    isElektronikTebligat = true;
+                                    tebligatBilgisi = item;
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Elektronik tebligat bulunduysa
+                    if (isElektronikTebligat && tebligatBilgisi) {
+                        console.log('***********************');
+                        console.log('Elektronik Tebligat Tespit Edildi');
+                        console.log('Barkod Numarası:', barcodeNumber);
+                        
+                        // Sadece aciklama alanını göster (varsa)
+                        if (tebligatBilgisi.aciklama) {
+                            console.log('Açıklama:', tebligatBilgisi.aciklama);
+                        }
+                        
+                        console.log('***********************');
+                        return; // PTT sorgusu yapmadan çık
+                    }
+                }
+            } catch (error) {
+                console.error('Elektronik tebligat kontrolü sırasında hata oluştu:', error);
+            }
+
+            // Elektronik tebligat değilse normal PTT sorgusu yap
             await checkPTTStatus(barcodeNumber);
         } else {
             console.error('Barkod bulunamadı:', result.error);
@@ -3204,4 +4312,244 @@ async function processBarcodeAndCheckPTT(base64Data) {
     } catch (error) {
         console.error('İşlem sırasında hata oluştu:', error);
     }
+}
+
+// Excel'e aktarma fonksiyonu - Harici kütüphane kullanmadan HTML tabloyu dışa aktarır
+function exportTableToExcel() {
+    // Tebligat sonuçları kontrol edilir
+    if (!window.latestTebligatSonuclari || window.latestTebligatSonuclari.length === 0) {
+        alert('Dışa aktarılacak tebligat verisi bulunamadı!');
+        return;
+    }
+    
+    try {
+        // Tarih bilgisini al
+        const today = new Date();
+        const dateStr = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
+        const fileName = `Tebligatlar_${dateStr}.xls`;
+        
+        // HTML tablosu oluştur
+        let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40">';
+        
+        // Head kısmı ve stil
+        html += '<head>';
+        html += '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">';
+        html += '<meta http-equiv="X-UA-Compatible" content="IE=edge">';
+        html += '<!--[if gte mso 9]><xml>';
+        html += '<x:ExcelWorkbook>';
+        html += '<x:ExcelWorksheets>';
+        html += '<x:ExcelWorksheet>';
+        html += '<x:Name>Tebligatlar</x:Name>';
+        html += '<x:WorksheetOptions>';
+        html += '<x:DisplayGridlines/>';
+        html += '<x:FitToPage/>';
+        html += '</x:WorksheetOptions>';
+        html += '</x:ExcelWorksheet>';
+        html += '</x:ExcelWorksheets>';
+        html += '</x:ExcelWorkbook>';
+        html += '</xml><![endif]-->';
+        
+        html += '<style>';
+        html += 'table, th, td { border: 1px solid black; border-collapse: collapse; }';
+        html += 'th { background-color: #1F4E78; color: white; font-weight: bold; }';
+        html += '.elektronik { background-color: #D1ECF1; }'; // Açık mavi
+        html += '.teslim { background-color: #D4EDDA; }'; // Açık yeşil
+        html += '.iade { background-color: #F8D7DA; }'; // Açık kırmızı
+        html += '.bekleyen { background-color: #FFF3CD; }'; // Açık sarı
+        html += 'td, th { padding: 5px; white-space: nowrap; }'; // nowrap ekleyerek kırpılmayı engelliyoruz
+        html += 'table { table-layout: fixed; width: 100%; }';
+        html += 'col.c1 { width: 250px; }'; // Yargı Birimi
+        html += 'col.c2 { width: 150px; }'; // Dosya No
+        html += 'col.c3 { width: 150px; }'; // Barkod No
+        html += 'col.c4 { width: 300px; }'; // Alıcı Bilgileri
+        html += 'col.c5 { width: 350px; }'; // Gönderim Açıklaması
+        html += 'col.c6 { width: 150px; }'; // Teslim Tarihi
+        html += 'col.c7 { width: 180px; }'; // Tebligat Türü
+        html += '</style>';
+        html += '</head>';
+        
+        // Body başlangıcı
+        html += '<body>';
+        html += '<table>';
+        
+        // Sütun genişliklerini belirle
+        html += '<colgroup>';
+        html += '<col class="c1">'; // Yargı Birimi
+        html += '<col class="c2">'; // Dosya No
+        html += '<col class="c3">'; // Barkod No
+        html += '<col class="c4">'; // Alıcı Bilgileri
+        html += '<col class="c5">'; // Gönderim Açıklaması
+        html += '<col class="c6">'; // Teslim Tarihi
+        html += '<col class="c7">'; // Tebligat Türü
+        html += '</colgroup>';
+        
+        // Tablo başlığı
+        html += '<tr>';
+        html += '<th>Yargı Birimi</th>';
+        html += '<th>Dosya No</th>';
+        html += '<th>Barkod No</th>';
+        html += '<th>Alıcı Bilgileri</th>';
+        html += '<th>Gönderim Açıklaması</th>';
+        html += '<th>Teslim Tarihi</th>';
+        html += '<th>Tebligat Türü</th>';
+        html += '</tr>';
+        
+        // Tablo içeriği
+        window.latestTebligatSonuclari.forEach(sonuc => {
+            const isIade = sonuc.gonderimAciklamasi && 
+                          (sonuc.gonderimAciklamasi.toUpperCase().includes('IADE') || 
+                           sonuc.gonderimAciklamasi.toUpperCase().includes('İADE'));
+            
+            let rowClass = '';
+            if (sonuc.isElektronikTebligat) {
+                rowClass = 'elektronik';
+            } else if (isIade) {
+                rowClass = 'iade';
+            } else if (sonuc.teslimTarihi && sonuc.teslimTarihi.trim() !== '-' && sonuc.teslimTarihi.trim() !== '') {
+                rowClass = 'teslim';
+            } else {
+                rowClass = 'bekleyen';
+            }
+            
+            const tebligatTuru = sonuc.isElektronikTebligat ? 'Elektronik Tebligat' : 'Normal Tebligat';
+            
+            // Tarihi standart formata dönüştür
+            let formattedTeslimTarihi = sonuc.teslimTarihi || '-';
+            if (formattedTeslimTarihi !== '-' && formattedTeslimTarihi.trim() !== '') {
+                // Tarih formatını kontrol et ve standartlaştır (GG.AA.YYYY formatına çevir)
+                if (formattedTeslimTarihi.includes('/')) {
+                    const parts = formattedTeslimTarihi.split('/');
+                    if (parts.length === 3) {
+                        formattedTeslimTarihi = `${parts[0].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[2]}`;
+                    }
+                } else if (formattedTeslimTarihi.includes('-')) {
+                    const parts = formattedTeslimTarihi.split('-');
+                    if (parts.length === 3) {
+                        // YYYY-AA-GG formatını GG.AA.YYYY formatına çevir
+                        if (parts[0].length === 4) {
+                            formattedTeslimTarihi = `${parts[2].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[0]}`;
+                        } else {
+                            formattedTeslimTarihi = `${parts[0].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[2]}`;
+                        }
+                    }
+                } else if (formattedTeslimTarihi.includes('.')) {
+                    const parts = formattedTeslimTarihi.split('.');
+                    if (parts.length === 3) {
+                        formattedTeslimTarihi = `${parts[0].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[2]}`;
+                    }
+                }
+            }
+            
+            // Barkod numarasını metin olarak formatla (bilimsel gösterimden kaçınmak için)
+            const barkodNo = sonuc.barkodNo || '-';
+            const formattedBarkodNo = barkodNo !== '-' ? `'${barkodNo}` : '-';
+            
+            html += `<tr class="${rowClass}">`;
+            html += `<td>${escapeHTML(sonuc.yargiBirimi || '-')}</td>`;
+            html += `<td>${escapeHTML(sonuc.dosyaNo || '-')}</td>`;
+            html += `<td style="mso-number-format:'\\@';">${escapeHTML(barkodNo)}</td>`;
+            html += `<td>${escapeHTML(sonuc.aliciBilgisi || '-')}</td>`;
+            html += `<td>${escapeHTML(sonuc.gonderimAciklamasi || '-')}</td>`;
+            html += `<td>${escapeHTML(formattedTeslimTarihi)}</td>`;
+            html += `<td>${escapeHTML(tebligatTuru)}</td>`;
+            html += '</tr>';
+        });
+        
+        // Tablo ve HTML sonu
+        html += '</table>';
+        html += '</body>';
+        html += '</html>';
+        
+        // HTML'i Blob'a dönüştür
+        const blob = new Blob([html], {type: 'application/vnd.ms-excel'});
+        const url = URL.createObjectURL(blob);
+        
+        // Dosyayı indir
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        console.log(`UYAP Asistan: Tebligatlar Excel formatında dışa aktarıldı: ${fileName}`);
+    } catch (error) {
+        console.error('Excel dosyası oluşturulurken hata:', error);
+        alert('Excel dosyası oluşturulurken bir hata oluştu. CSV formatında dışa aktarmayı deniyorum...');
+        exportTableToCSV();
+    }
+}
+
+// HTML escaping fonksiyonu
+function escapeHTML(str) {
+    if (!str) return '';
+    return str
+        .toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Yedek olarak CSV formatında dışa aktarma fonksiyonu
+function exportTableToCSV() {
+    // Tebligat sonuçları kontrol edilir
+    if (!window.latestTebligatSonuclari || window.latestTebligatSonuclari.length === 0) {
+        alert('Dışa aktarılacak tebligat verisi bulunamadı!');
+        return;
+    }
+    
+    // CSV formatına çevir
+    let csvContent = 'data:text/csv;charset=utf-8,\uFEFF';
+    
+    // Başlık satırı
+    csvContent += 'Yargı Birimi,Dosya No,Barkod No,Alıcı Bilgileri,Gönderim Açıklaması,Teslim Tarihi,Tebligat Türü\n';
+    
+    // Veri satırları
+    window.latestTebligatSonuclari.forEach(sonuc => {
+        const tebligatTuru = sonuc.isElektronikTebligat ? 'Elektronik Tebligat' : 'Normal Tebligat';
+        const row = [
+            escapeCsvValue(sonuc.yargiBirimi || ''),
+            escapeCsvValue(sonuc.dosyaNo || ''),
+            escapeCsvValue(sonuc.barkodNo || ''),
+            escapeCsvValue(sonuc.aliciBilgisi || ''),
+            escapeCsvValue(sonuc.gonderimAciklamasi || ''),
+            escapeCsvValue(sonuc.teslimTarihi || ''),
+            escapeCsvValue(tebligatTuru)
+        ];
+        csvContent += row.join(',') + '\n';
+    });
+    
+    // CSV'yi indirme bağlantısı oluştur
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    
+    // Dosya adı oluştur (bugünün tarihi ile)
+    const today = new Date();
+    const dateStr = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
+    link.setAttribute('download', `Tebligatlar_${dateStr}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log(`UYAP Asistan: Tebligatlar CSV formatında dışa aktarıldı`);
+}
+
+// CSV için değerleri düzgün formata çevirme
+function escapeCsvValue(value) {
+    if (value === null || value === undefined) return '';
+    
+    value = value.toString();
+    // Çift tırnak içine alınması gereken karakterler varsa
+    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        // Çift tırnakları escape et (bir tane daha ekleyerek)
+        value = value.replace(/"/g, '""');
+        // Tüm değeri çift tırnak içine al
+        value = `"${value}"`;
+    }
+    return value;
 }
