@@ -904,8 +904,10 @@ class SynchronizationManager {
             // Avukat bilgilerini Account sınıfının kullandığı formata dönüştür
             const avukatInfo = {
                 name: `${this.avukatBilgileri.adi} ${this.avukatBilgileri.soyadi}`,
-                bar: this.avukatBilgileri.baro || "Belirtilmemiş", // API'de baro bilgisi yoksa varsayılan değer
-                id: this.avukatBilgileri.tcKimlikNo || this.avukatBilgileri.sicilNo || "Belirtilmemiş",
+                bar: this.avukatBilgileri.baro || "Belirtilmemiş",
+                id: this.avukatBilgileri.tcKimlikNo || "Belirtilmemiş",
+                baroNo: this.avukatBilgileri.baroNo || "Belirtilmemiş", // Baro numarası
+                tbbNo: this.avukatBilgileri.tbbNo || "Belirtilmemiş", // TBB numarası
                 email: this.avukatBilgileri.email || "Belirtilmemiş",
                 phone: this.avukatBilgileri.telefon || "Belirtilmemiş",
                 address: this.avukatBilgileri.adres || "Belirtilmemiş"
@@ -918,7 +920,7 @@ class SynchronizationManager {
                 const lawyers = data.lawyers || [];
                 
                 // Bu avukat zaten eklenmiş mi kontrol et
-                const avukatVarMi = lawyers.some(lawyer => lawyer.name === avukatInfo.name);
+                const avukatVarMi = lawyers.some(lawyer => lawyer.id === avukatInfo.id);
                 
                 if (!avukatVarMi) {
                     // Yeni avukatı listeye ekle
@@ -929,7 +931,16 @@ class SynchronizationManager {
                         console.log('Avukat bilgileri Account popup\'ına kaydedildi.');
                     });
                 } else {
-                    console.log('Bu avukat zaten Account popup\'ında kayıtlı.');
+                    // Varolan avukatı güncelle
+                    const index = lawyers.findIndex(lawyer => lawyer.id === avukatInfo.id);
+                    if (index !== -1) {
+                        lawyers[index] = avukatInfo;
+                        
+                        // Güncellenmiş listeyi kaydet
+                        chrome.storage.sync.set({ lawyers }, () => {
+                            console.log('Avukat bilgileri Account popup\'ında güncellendi.');
+                        });
+                    }
                 }
             });
         } catch (error) {
@@ -1014,15 +1025,36 @@ class SynchronizationManager {
     // Avukat bilgilerini al
     async getAvukatBilgileri() {
         try {
-            const response = await fetch('https://avukatbeta.uyap.gov.tr/kullanici_bilgileri.uyap', {
+            const response = await fetch('https://avukatbeta.uyap.gov.tr/avukatKisiselBilgileriSorgula.ajx', {
                 method: 'GET',
                 credentials: 'include'
             });
             
             if (response.ok) {
-                const data = await response.json();
-                this.avukatBilgileri = data;
-                return data;
+                const responseData = await response.json();
+                // Yanıt bir dizi şeklinde geliyor, ilk eleman avukat bilgilerini içeriyor
+                if (Array.isArray(responseData) && responseData.length > 0) {
+                    const avukatData = responseData[0];
+                    
+                    // Avukat bilgilerini dönüştürüp saklayalım
+                    this.avukatBilgileri = {
+                        adi: avukatData.ad || '',
+                        soyadi: avukatData.soyad || '',
+                        tcKimlikNo: avukatData.tcKimlikNo || '',
+                        baro: avukatData.bagliOlduguBaroAdi || '',
+                        baroNo: avukatData.baroNo || '',
+                        tbbNo: avukatData.tbbNo || '',
+                        email: '', // API'de bulunmuyor, boş bırakılacak
+                        telefon: '', // API'de bulunmuyor, boş bırakılacak
+                        adres: '' // API'de bulunmuyor, boş bırakılacak
+                    };
+                    
+                    console.log('Avukat bilgileri alındı:', this.avukatBilgileri);
+                    return this.avukatBilgileri;
+                } else {
+                    console.error('Avukat bilgileri yanıtı beklenmeyen formatta:', responseData);
+                    return null;
+                }
             } else {
                 console.error('Avukat bilgileri alınırken hata:', response.status, response.statusText);
                 return null;
