@@ -594,7 +594,7 @@ class SynchronizationManager {
                 console.log('Avukat bilgileri alındı:', this.avukatBilgileri);
                 const avukatAdSoyad = `${this.avukatBilgileri.adi} ${this.avukatBilgileri.soyadi}`;
                 
-                // Avukat bilgilerini Kullanıcı Bilgileri popup'ına da kaydet
+                // Avukat bilgilerini Yönetim Paneli popup'ındaki "Bilgilerim" kısmına ekle
                 await this.saveAvukatBilgileriToAccount();
                 
                 // Taraf bilgilerini topla
@@ -705,7 +705,7 @@ class SynchronizationManager {
                 console.log('Müvekkil listesi:', this.muvekkilListesi);
                 console.log('Karşı taraf listesi:', this.karsiTarafListesi);
                 
-                // Müvekkil bilgilerini Kullanıcı Bilgileri popup'ına da kaydet
+                // Müvekkil bilgilerini Yönetim Paneli popup'ına da kaydet
                 await this.saveMuvekkilBilgileriToAccount();
                 
                 // Müvekkil ve karşı taraf listelerini de kaydet
@@ -863,7 +863,7 @@ class SynchronizationManager {
         }
     }
     
-    // Müvekkil bilgilerini Kullanıcı Bilgileri popup'ındaki "Müvekkiller" bölümüne ekle
+    // Müvekkil bilgilerini Yönetim Paneli popup'ına da kaydet
     async saveMuvekkilBilgileriToAccount() {
         if (!this.dosyaDetaylari || this.dosyaDetaylari.length === 0) {
             console.warn('Kaydedilecek müvekkil bilgisi bulunamadı.');
@@ -893,7 +893,7 @@ class SynchronizationManager {
         }
     }
 
-    // Avukat bilgilerini Kullanıcı Bilgileri popup'ındaki "Avukat Bilgileri" kısmına ekle
+    // Avukat bilgilerini Yönetim Paneli popup'ındaki "Bilgilerim" kısmına ekle
     async saveAvukatBilgileriToAccount() {
         if (!this.avukatBilgileri) {
             console.warn('Kaydedilecek avukat bilgisi bulunamadı.');

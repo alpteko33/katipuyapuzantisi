@@ -191,7 +191,7 @@ function createPanel() {
             <div class="extension-item" id="account">
                 <div class="extension-item-content">
                     <i class="fas fa-user-cog"></i>
-                    <span>Kullanıcı Bilgileri</span>
+                    <span>Yönetim Paneli</span>
                 </div>
                 <i class="fas fa-chevron-down arrow-icon"></i>
             </div>
@@ -301,7 +301,7 @@ function handleMenuClick(menuId) {
             if (accountManager) {
                 accountManager.showAccount();
             } else {
-                alert('Kullanıcı Bilgileri özelliği yüklenemedi. Lütfen sayfayı yenileyin.');
+                alert('Yönetim Paneli özelliği yüklenemedi. Lütfen sayfayı yenileyin.');
             }
             break;
     }

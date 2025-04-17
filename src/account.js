@@ -20,28 +20,32 @@ class Account {
             </div>
             <div class="account-sidebar">
                 <div class="account-header">
-                    <h2>Kullanıcı Bilgileri</h2>
+                    <h2>Yönetim Paneli</h2>
                 </div>
                 <div class="account-menu">
                     <div class="account-menu-item active" data-section="lawyer">
                         <i class="fas fa-user-tie"></i>
-                        <span>Avukat Bilgileri</span>
+                        <span>Bilgilerim</span>
                     </div>
                     <div class="account-menu-item" data-section="staff">
                         <i class="fas fa-users"></i>
-                        <span>Ofis Personelleri</span>
+                        <span>Personelim</span>
                     </div>
                     <div class="account-menu-item" data-section="clients">
                         <i class="fas fa-user-friends"></i>
-                        <span>Müvekkiller</span>
+                        <span>Müvekkillerim</span>
                     </div>
                     <div class="account-menu-item" data-section="document-management">
                         <i class="fas fa-file-alt"></i>
-                        <span>Evrak Yönetimi</span>
+                        <span>Evraklarım</span>
                     </div>
                     <div class="account-menu-item" data-section="case-notes">
                         <i class="fas fa-sticky-note"></i>
-                        <span>Dava Notları</span>
+                        <span>Notlarım</span>
+                    </div>
+                    <div class="account-menu-item" data-section="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Raporlarım</span>
                     </div>
                 </div>
             </div>
@@ -61,7 +65,7 @@ class Account {
     generateLawyerInfo() {
         return `
             <div class="account-section" id="lawyer-info">
-                <h3>Avukat Bilgileri</h3>
+                <h3>Bilgilerim</h3>
                 <div class="account-group lawyer-container">
                     <div class="lawyer-form">
                         <div class="info-row">
@@ -115,7 +119,7 @@ class Account {
     generateStaffInfo() {
         return `
             <div class="account-section" id="staff-info">
-                <h3>Ofis Personelleri</h3>
+                <h3>Personelim</h3>
                 <div class="account-group staff-container">
                     <div class="staff-form">
                         <div class="info-row">
@@ -160,15 +164,11 @@ class Account {
     generateClientsInfo() {
         return `
             <div class="account-section" id="clients-info">
-                <h3>Müvekkiller</h3>
+                <h3>Müvekkillerim</h3>
                 <div class="account-group clients-container">
                     <div class="clients-list">
                         <div class="clients-header">
                             <h4>Müvekkilleriniz</h4>
-                            <div class="clients-search">
-                                <input type="text" class="clients-search-input" placeholder="Müvekil ismi ile ara...">
-                                <i class="fas fa-search search-icon"></i>
-                            </div>
                         </div>
                         <div class="clients-cards-container">
                             <!-- Müvekkiller buraya yüklenecek -->
@@ -186,7 +186,7 @@ class Account {
     generateDocumentManagementInfo() {
         return `
             <div class="account-section" id="document-management-info">
-                <h3>Evrak Yönetimi</h3>
+                <h3>Evraklarım</h3>
                 <div class="document-tabpanel">
                     <div class="document-tab-headers">
                         <div class="document-tab-header active" data-section="petitions">
@@ -312,8 +312,8 @@ class Account {
     generateCaseNotesInfo() {
         return `
             <div class="account-section" id="case-notes-info">
-                <h3>Dava Notları</h3>
-                <div class="case-notes-container">
+                <h3>Notlarım</h3>
+                <div class="account-group case-notes-container">
                     <div class="case-notes-header">
                         <div class="case-notes-search">
                             <input type="text" class="case-notes-search-input" placeholder="Notlarda ara...">
@@ -328,6 +328,21 @@ class Account {
                     </div>
                     <div class="case-notes-grid">
                         <!-- Dava notları buraya eklenecek -->
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    generateReportsInfo() {
+        return `
+            <div class="account-section" id="reports-info">
+                <h3>Raporlarım</h3>
+                <div id="reports-container">
+                    <!-- Raporlar içeriği buraya eklenecek -->
+                    <div class="reports-placeholder">
+                        <i class="fas fa-chart-bar"></i>
+                        <p>Raporlar hazırlanıyor...</p>
                     </div>
                 </div>
             </div>
@@ -383,6 +398,10 @@ class Account {
                     case 'case-notes':
                         content.innerHTML = this.generateCaseNotesInfo();
                         this.setupCaseNotesEvents();
+                        break;
+                    case 'reports':
+                        content.innerHTML = this.generateReportsInfo();
+                        this.setupReportsEvents();
                         break;
                 }
                 
@@ -910,8 +929,212 @@ class Account {
                     margin-bottom: 10px;
                     display: block;
                 }
+                
+                /* Raporlar Stilleri */
+                .reports-container {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                }
+                
+                .reports-header {
+                    margin-bottom: 20px;
+                }
+                
+                .reports-filters {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    flex-wrap: wrap;
+                    background-color: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 8px;
+                    border: 1px solid #e0e0e0;
+                }
+                
+                .report-type-select {
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    border: 1px solid #ccc;
+                    min-width: 180px;
+                }
+                
+                .date-filter {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .date-filter input[type="date"] {
+                    padding: 8px;
+                    border-radius: 4px;
+                    border: 1px solid #ccc;
+                }
+                
+                .generate-report-btn, .export-report-btn {
+                    background-color: #4a76a8;
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .reports-content {
+                    flex: 1;
+                    background-color: #fff;
+                    border-radius: 8px;
+                    border: 1px solid #e0e0e0;
+                    padding: 20px;
+                    min-height: 400px;
+                }
+                
+                .report-placeholder {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100%;
+                    text-align: center;
+                    color: #6c757d;
+                }
+                
+                .reports-icon {
+                    font-size: 48px;
+                    margin-bottom: 15px;
+                    color: #4a76a8;
+                }
+                
+                .report-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    padding-bottom: 15px;
+                    border-bottom: 1px solid #e0e0e0;
+                }
+                
+                .report-date-range {
+                    color: #6c757d;
+                    font-style: italic;
+                }
+                
+                .report-summary {
+                    margin-bottom: 30px;
+                }
+                
+                .report-cards {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                    gap: 15px;
+                    margin-top: 15px;
+                }
+                
+                .report-card {
+                    display: flex;
+                    align-items: center;
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 15px;
+                    border: 1px solid #e0e0e0;
+                }
+                
+                .report-card-icon {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 50px;
+                    height: 50px;
+                    background-color: #24377F;
+                    color: white;
+                    border-radius: 50%;
+                    margin-right: 15px;
+                    font-size: 20px;
+                }
+                
+                .report-number {
+                    font-size: 24px;
+                    font-weight: bold;
+                    margin: 0;
+                    color: #24377F;
+                }
+                
+                .report-chart {
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    border: 1px solid #e0e0e0;
+                }
+                
+                .chart-placeholder {
+                    height: 200px;
+                    background-color: #e9ecef;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #6c757d;
+                    margin-top: 10px;
+                }
+                
+                .report-table {
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 15px;
+                    border: 1px solid #e0e0e0;
+                }
+                
+                .reports-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                }
+                
+                .reports-table th, .reports-table td {
+                    padding: 10px;
+                    text-align: left;
+                    border-bottom: 1px solid #e0e0e0;
+                }
+                
+                .reports-table th {
+                    background-color: #f1f1f1;
+                    font-weight: bold;
+                }
+                
+                .loading-reports {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 50px 0;
+                }
+                
+                .loading-reports i {
+                    font-size: 30px;
+                    color: #4a76a8;
+                    margin-bottom: 15px;
+                }
+                
+                .reports-placeholder {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 300px;
+                    text-align: center;
+                    color: #6c757d;
+                }
+                
+                .reports-placeholder i {
+                    font-size: 48px;
+                    margin-bottom: 20px;
+                    color: #4a76a8;
+                }
             `;
-            
             document.head.appendChild(style);
         }
     }
@@ -924,22 +1147,6 @@ class Account {
     }
 
     setupClientEvents() {
-        // Arama fonksiyonunu kur
-        const searchInput = document.querySelector('.clients-search-input');
-        if (searchInput) {
-            // Input olayını dinle
-            searchInput.addEventListener('input', (e) => {
-                this.filterClients(e.target.value);
-            });
-            
-            // Enter tuşu ile arama 
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.filterClients(e.target.value);
-                }
-            });
-        }
-        
         // Müvekkil verileri güncellendiğinde dinle
         window.addEventListener('muvekkilDataUpdated', (event) => {
             this.displayClientData(event.detail.muvekkilVerileri);
@@ -1280,24 +1487,222 @@ class Account {
         const contractsList = document.querySelector('.contracts-list');
         
         if (contractsList) {
+            // Önce yükleniyor mesajını göster
             contractsList.innerHTML = `
-                <div class="no-contracts">
-                    <i class="fas fa-file-contract"></i>
-                    <p>Sözleşme bulunamadı. Yeni bir sözleşme oluşturmak için "Sözleşme Ekle" butonuna tıklayın.</p>
+                <div class="loading-contracts">
+                    <i class="fas fa-spinner fa-pulse"></i>
+                    <p>Sözleşmeler yükleniyor...</p>
                 </div>
             `;
             
-            // Ekle butonu
-            const addBtn = document.querySelector('.add-contract-btn');
-            
-            if (addBtn) {
-                // Önce mevcut tüm event listener'ları kaldır
-                const newAddBtn = addBtn.cloneNode(true);
-                addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+            // Chrome storage'dan sözleşmeleri al
+            chrome.storage.local.get('contracts', (result) => {
+                const contracts = result.contracts || [];
                 
-                // Yeni bir event listener ekle
-                newAddBtn.addEventListener('click', () => this.createNewDocumentForm('contract'));
-            }
+                // Sözleşmeler var mı kontrol et
+                if (contracts.length > 0) {
+                    let contractsHTML = '<div class="contracts-grid">';
+                    
+                    // Her sözleşme için kart oluştur
+                    contracts.forEach((contract, index) => {
+                        // Tarih formatını düzenle
+                        const date = new Date(contract.createdAt);
+                        const formattedDate = date.toLocaleDateString('tr-TR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        
+                        contractsHTML += `
+                            <div class="contract-card" data-id="${contract.id}" data-index="${index}">
+                                <div class="contract-header">
+                                    <h4>Avukatlık Ücret Sözleşmesi</h4>
+                                    <div class="contract-date">${formattedDate}</div>
+                                </div>
+                                <div class="contract-body">
+                                    <div class="contract-client">${contract.clientName || 'İsimsiz Müvekkil'}</div>
+                                    <div class="contract-summary">
+                                        <i class="fas fa-user-tie" style="color: #4a76a8;"></i> ${contract.lawyerName || 'Belirtilmemiş'}
+                                    </div>
+                                    <div class="contract-summary">
+                                        <i class="fas fa-calendar-alt" style="color: #4a76a8;"></i> ${formattedDate}
+                                    </div>
+                                </div>
+                                <div class="contract-actions">
+                                    <button class="view-contract" data-index="${index}">
+                                        <i class="fas fa-eye"></i> Görüntüle
+                                    </button>
+                                    <button class="download-contract" data-index="${index}">
+                                        <i class="fas fa-download"></i> İndir
+                                    </button>
+                                    <button class="delete-contract" data-index="${index}">
+                                        <i class="fas fa-trash"></i> Sil
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    contractsHTML += '</div>';
+                    
+                    // CSS stil ekleme
+                    contractsHTML += `
+                        <style>
+                            .contracts-grid {
+                                display: grid;
+                                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                                grid-gap: 20px;
+                                margin-top: 20px;
+                            }
+                            
+                            .contract-card {
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                overflow: hidden;
+                                background-color: white;
+                                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                transition: transform 0.2s, box-shadow 0.2s;
+                            }
+                            
+                            .contract-card:hover {
+                                transform: translateY(-3px);
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                            }
+                            
+                            .contract-header {
+                                padding: 12px 15px;
+                                background-color: #f8f9fa;
+                                border-bottom: 1px solid #eee;
+                            }
+                            
+                            .contract-header h4 {
+                                margin: 0 0 5px 0;
+                                font-size: 16px;
+                                color: #333;
+                            }
+                            
+                            .contract-date {
+                                font-size: 13px;
+                                color: #666;
+                            }
+                            
+                            .contract-body {
+                                padding: 15px;
+                            }
+                            
+                            .contract-client {
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                                font-size: 15px;
+                                color: #333;
+                            }
+                            
+                            .contract-summary {
+                                font-size: 14px;
+                                color: #555;
+                                margin-bottom: 8px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                            }
+                            
+                            .contract-actions {
+                                display: flex;
+                                justify-content: space-between;
+                                padding: 12px 15px;
+                                border-top: 1px solid #eee;
+                                background-color: #f8f9fa;
+                            }
+                            
+                            .contract-actions button {
+                                padding: 6px 10px;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 13px;
+                                display: flex;
+                                align-items: center;
+                                gap: 5px;
+                                transition: background-color 0.2s;
+                            }
+                            
+                            .view-contract {
+                                background-color: #4a76a8;
+                                color: white;
+                            }
+                            
+                            .view-contract:hover {
+                                background-color: #3d638e;
+                            }
+                            
+                            .download-contract {
+                                background-color: #17a2b8;
+                                color: white;
+                            }
+                            
+                            .download-contract:hover {
+                                background-color: #138496;
+                            }
+                            
+                            .delete-contract {
+                                background-color: #dc3545;
+                                color: white;
+                            }
+                            
+                            .delete-contract:hover {
+                                background-color: #c82333;
+                            }
+                        </style>
+                    `;
+                    
+                    contractsList.innerHTML = contractsHTML;
+                    
+                    // Kart butonlarına olayları ekle
+                    this.setupContractCardEvents();
+                } else {
+                    // Sözleşme yoksa mesaj göster
+                    contractsList.innerHTML = `
+                        <div class="no-contracts">
+                            <i class="fas fa-file-contract"></i>
+                            <p>Henüz kaydedilmiş sözleşme bulunmamaktadır.</p>
+                            <p>Yeni bir sözleşme oluşturmak için "Ekle" butonuna tıklayın.</p>
+                        </div>
+                        <style>
+                            .no-contracts {
+                                text-align: center;
+                                padding: 50px 20px;
+                                color: #666;
+                                background-color: #f9f9f9;
+                                border-radius: 8px;
+                                margin-top: 20px;
+                            }
+                            
+                            .no-contracts i {
+                                font-size: 3rem;
+                                margin-bottom: 15px;
+                                color: #4a76a8;
+                            }
+                            
+                            .no-contracts p {
+                                margin: 5px 0;
+                                font-size: 1rem;
+                            }
+                        </style>
+                    `;
+                }
+                
+                // Ekle butonu
+                const addBtn = document.querySelector('.add-contract-btn');
+                
+                if (addBtn) {
+                    // Önce mevcut tüm event listener'ları kaldır
+                    const newAddBtn = addBtn.cloneNode(true);
+                    addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+                    
+                    // Yeni bir event listener ekle
+                    newAddBtn.addEventListener('click', () => this.createNewDocumentForm('contract'));
+                }
+            });
         }
     }
     
@@ -1305,18 +1710,225 @@ class Account {
         const meetingNotesList = document.querySelector('.meeting-notes-list');
         
         if (meetingNotesList) {
+            // Önce yükleniyor mesajını göster
             meetingNotesList.innerHTML = `
-                <div class="no-meeting-notes">
-                    <i class="fas fa-clipboard"></i>
-                    <p>Görüşme tutanakları özelliği yakında kullanıma sunulacaktır.</p>
+                <div class="loading-meeting-notes">
+                    <i class="fas fa-spinner fa-pulse"></i>
+                    <p>Görüşme tutanakları yükleniyor...</p>
                 </div>
             `;
             
+            // Local storage'dan görüşme tutanaklarını al
+            const meetingNotes = JSON.parse(localStorage.getItem('uyap_asistan_meeting_notes') || '[]');
+            
+            // Görüşme tutanakları var mı kontrol et
+            if (meetingNotes.length > 0) {
+                let meetingNotesHTML = '<div class="meeting-notes-grid">';
+                
+                // Her görüşme tutanağı için kart oluştur
+                meetingNotes.forEach((note, index) => {
+                    // Tutanak tipini belirle
+                    let typeName = 'İlk Görüşme';
+                    if (note.type === 'dava_sonrasi') typeName = 'Dava Sonrası Görüşme';
+                    else if (note.type === 'uzlasma') typeName = 'Uzlaşma Görüşmesi';
+                    else if (note.type === 'bilgilendirme') typeName = 'Bilgilendirme Toplantısı';
+                    else if (note.type === 'diger') typeName = 'Diğer Görüşme';
+                    
+                    // Tarih formatını düzenle
+                    const date = new Date(note.date);
+                    const formattedDate = date.toLocaleDateString('tr-TR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                    
+                    meetingNotesHTML += `
+                        <div class="meeting-note-card" data-id="${note.id}" data-index="${index}">
+                            <div class="meeting-note-header">
+                                <h4>${typeName}</h4>
+                                <div class="meeting-note-date">${formattedDate}</div>
+                            </div>
+                            <div class="meeting-note-body">
+                                <div class="meeting-note-client">${note.clientName || 'İsimsiz Müvekkil'}</div>
+                                <div class="meeting-note-summary">
+                                    <i class="fas fa-user-tie" style="color: #4a76a8;"></i> ${note.lawyerName || 'Belirtilmemiş'}
+                                </div>
+                                <div class="meeting-note-summary">
+                                    <i class="fas fa-calendar-alt" style="color: #4a76a8;"></i> ${formattedDate}
+                                </div>
+                            </div>
+                            <div class="meeting-note-actions">
+                                <button class="view-meeting-note" data-index="${index}">
+                                    <i class="fas fa-eye"></i> Görüntüle
+                                </button>
+                                <button class="download-meeting-note" data-index="${index}">
+                                    <i class="fas fa-download"></i> İndir
+                                </button>
+                                <button class="delete-meeting-note" data-index="${index}">
+                                    <i class="fas fa-trash"></i> Sil
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                meetingNotesHTML += '</div>';
+                
+                // CSS stil ekleme
+                meetingNotesHTML += `
+                    <style>
+                        .meeting-notes-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                            grid-gap: 20px;
+                            margin-top: 20px;
+                        }
+                        
+                        .meeting-note-card {
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            background-color: white;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                            transition: transform 0.2s, box-shadow 0.2s;
+                        }
+                        
+                        .meeting-note-card:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                        }
+                        
+                        .meeting-note-header {
+                            padding: 12px 15px;
+                            background-color: #f8f9fa;
+                            border-bottom: 1px solid #eee;
+                        }
+                        
+                        .meeting-note-header h4 {
+                            margin: 0 0 5px 0;
+                            font-size: 16px;
+                            color: #333;
+                        }
+                        
+                        .meeting-note-date {
+                            font-size: 13px;
+                            color: #666;
+                        }
+                        
+                        .meeting-note-body {
+                            padding: 15px;
+                        }
+                        
+                        .meeting-note-client {
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                            font-size: 15px;
+                            color: #333;
+                        }
+                        
+                        .meeting-note-summary {
+                            font-size: 14px;
+                            color: #555;
+                            margin-bottom: 8px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        
+                        .meeting-note-actions {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 12px 15px;
+                            border-top: 1px solid #eee;
+                            background-color: #f8f9fa;
+                        }
+                        
+                        .meeting-note-actions button {
+                            padding: 6px 10px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            transition: background-color 0.2s;
+                        }
+                        
+                        .view-meeting-note {
+                            background-color: #4a76a8;
+                            color: white;
+                        }
+                        
+                        .view-meeting-note:hover {
+                            background-color: #3d638e;
+                        }
+                        
+                        .download-meeting-note {
+                            background-color: #17a2b8;
+                            color: white;
+                        }
+                        
+                        .download-meeting-note:hover {
+                            background-color: #138496;
+                        }
+                        
+                        .delete-meeting-note {
+                            background-color: #dc3545;
+                            color: white;
+                        }
+                        
+                        .delete-meeting-note:hover {
+                            background-color: #c82333;
+                        }
+                    </style>
+                `;
+                
+                meetingNotesList.innerHTML = meetingNotesHTML;
+                
+                // Kart butonlarına olayları ekle
+                this.setupMeetingNoteCardEvents();
+            } else {
+                // Görüşme tutanağı yoksa mesaj göster
+                meetingNotesList.innerHTML = `
+                    <div class="no-meeting-notes">
+                        <i class="fas fa-clipboard"></i>
+                        <p>Henüz kaydedilmiş görüşme tutanağı bulunmamaktadır.</p>
+                        <p>Yeni bir görüşme tutanağı oluşturmak için "Ekle" butonuna tıklayın.</p>
+                    </div>
+                    <style>
+                        .no-meeting-notes {
+                            text-align: center;
+                            padding: 50px 20px;
+                            color: #666;
+                            background-color: #f9f9f9;
+                            border-radius: 8px;
+                            margin-top: 20px;
+                        }
+                        
+                        .no-meeting-notes i {
+                            font-size: 3rem;
+                            margin-bottom: 15px;
+                            color: #4a76a8;
+                        }
+                        
+                        .no-meeting-notes p {
+                            margin: 5px 0;
+                            font-size: 1rem;
+                        }
+                    </style>
+                `;
+            }
+            
             // Ekle butonu
             const addBtn = document.querySelector('.add-meeting-note-btn');
-            
             if (addBtn) {
-                addBtn.addEventListener('click', () => this.createNewDocumentForm('meeting-note'));
+                // Önceki event listener'ları temizle
+                const newAddBtn = addBtn.cloneNode(true);
+                addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+                
+                // Yeni event listener ekle
+                newAddBtn.addEventListener('click', () => this.createNewDocumentForm('meeting-note'));
             }
         }
     }
@@ -1359,13 +1971,7 @@ class Account {
                 break;
             case 'meeting-note':
                 title = 'YENİ GÖRÜŞME TUTANAĞI OLUŞTUR';
-                content = `
-                    <div class="coming-soon">
-                        <i class="fas fa-tools" style="font-size: 3rem; margin-bottom: 15px; color: #4a76a8;"></i>
-                        <p>Bu özellik henüz geliştirme aşamasındadır.</p>
-                        <p>Yakında kullanıma sunulacaktır.</p>
-                    </div>
-                `;
+                content = this.generateMeetingNotesForm();
                 break;
         }
         
@@ -1410,110 +2016,216 @@ class Account {
                 overflow: auto;
             }
             
-            .contract-form-wizard {
-                width: 100%;
-                height: 100%;
+            /* Wizard stil tanımlamaları */
+            .wizard-header {
+                margin-bottom: 20px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
             }
             
-            .contract-form {
-                padding: 20px;
-                max-height: 70vh;
-                overflow-y: auto;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-gap: 15px;
-            }
-            
-            .contract-form .form-row {
-                margin-bottom: 15px;
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-            }
-            
-            .contract-form .form-row.full-width {
-                grid-column: 1 / span 2;
-            }
-            
-            .contract-form label {
-                display: block;
-                margin-bottom: 8px;
-                font-weight: bold;
-                color: #333;
-                flex-shrink: 0;
-            }
-            
-            .contract-form input, 
-            .contract-form textarea,
-            .contract-form select {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                font-size: 14px;
-                flex-grow: 1;
-                box-sizing: border-box;
-            }
-            
-            .contract-form textarea {
-                min-height: 80px;
-                resize: vertical;
-            }
-            
-            .contract-form input:focus,
-            .contract-form textarea:focus,
-            .contract-form select:focus {
-                outline: none;
-                border-color: #4a76a8;
-                box-shadow: 0 0 0 2px rgba(74, 118, 168, 0.2);
-            }
-            
-            .contract-preview {
-                margin-top: 20px;
-                padding: 20px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                background-color: #f9f9f9;
-                max-height: 300px;
-                overflow-y: auto;
-                font-size: 14px;
-                grid-column: 1 / span 2;
-            }
-            
-            .contract-preview h4 {
-                text-align: center;
-                margin-bottom: 15px;
-            }
-            
-            .form-actions {
+            .wizard-steps {
                 display: flex;
                 justify-content: space-between;
-                margin-top: 20px;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .wizard-step {
+                padding: 8px 12px;
+                background-color: #f0f0f0;
+                border-radius: 4px;
+                font-size: 14px;
+                color: #555;
+                opacity: 0.75;
+                cursor: default;
+                flex: 1;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .wizard-step.active {
+                background-color: #4a76a8;
+                color: white;
+                opacity: 1;
+                font-weight: bold;
+            }
+            
+            .wizard-page {
+                display: none;
+                padding: 20px;
+                max-height: 450px;
+                overflow-y: auto;
+            }
+            
+            .wizard-page.active {
+                display: block;
+            }
+            
+            .wizard-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 15px;
                 padding-top: 15px;
                 border-top: 1px solid #eee;
             }
             
-            .form-actions button {
-                padding: 8px 15px;
+            .wizard-navigation {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .wizard-navigation button {
+                padding: 8px 20px;
                 border: none;
                 border-radius: 4px;
                 cursor: pointer;
                 font-weight: bold;
             }
             
-            .preview-btn {
+            .prev-step-btn {
+                background-color: #f0f0f0;
+                color: #555;
+            }
+            
+            .next-step-btn {
                 background-color: #4a76a8;
                 color: white;
             }
             
-            .save-contract-btn {
+            .finish-btn {
                 background-color: #28a745;
                 color: white;
             }
             
-            .download-contract-btn {
+            .wizard-status {
+                font-size: 14px;
+                color: #666;
+                align-self: center;
+            }
+            
+            /* Görüşme tutanakları listesi stilleri */
+            .meeting-notes-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                grid-gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .meeting-note-card {
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                overflow: hidden;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            
+            .meeting-note-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+            
+            .meeting-note-header {
+                padding: 12px 15px;
+                background-color: #f8f8f8;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .meeting-note-header h4 {
+                margin: 0 0 5px 0;
+                font-size: 16px;
+                color: #333;
+            }
+            
+            .meeting-note-date {
+                font-size: 13px;
+                color: #666;
+            }
+            
+            .meeting-note-body {
+                padding: 15px;
+            }
+            
+            .meeting-note-client {
+                font-weight: bold;
+                margin-bottom: 5px;
+                font-size: 15px;
+            }
+            
+            .meeting-note-summary {
+                font-size: 14px;
+                color: #555;
+                margin-bottom: 5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .meeting-note-actions {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 15px;
+                border-top: 1px solid #eee;
+                background-color: #f8f8f8;
+            }
+            
+            .meeting-note-actions button {
+                padding: 6px 10px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .view-meeting-note {
+                background-color: #4a76a8;
+                color: white;
+            }
+            
+            .download-meeting-note, .download-viewed-meeting-note {
                 background-color: #17a2b8;
                 color: white;
+            }
+            
+            .delete-meeting-note {
+                background-color: #dc3545;
+                color: white;
+            }
+            
+            .meeting-note-preview-container {
+                padding: 20px;
+                max-height: 500px;
+                overflow-y: auto;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #fff;
+            }
+            
+            .no-meeting-notes {
+                text-align: center;
+                padding: 40px 20px;
+                color: #666;
+            }
+            
+            .no-meeting-notes i {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                color: #4a76a8;
+            }
+            
+            .meeting-note-form-wizard {
+                width: 100%;
+                height: 100%;
+            }
+            
+            .contract-form-wizard {
+                width: 100%;
+                height: 100%;
             }
         `;
         document.head.appendChild(style);
@@ -1527,6 +2239,8 @@ class Account {
             
             // Kayıtlı avukat bilgilerini getir ve otomatik doldur
             this.autoFillLawyerInfo(popupContainer);
+        } else if (type === 'meeting-note') {
+            this.setupMeetingNoteFormEvents();
         }
         
         // Kapatma butonuna tıklama olayı
@@ -2119,6 +2833,7 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
         // Wizard işlevselliği için yardımcı fonksiyonlar
         const showPage = (pageIndex) => {
             wizardPages.forEach((page, index) => {
+                page.style.display = index === pageIndex ? '' : 'none';
                 page.classList.toggle('active', index === pageIndex);
             });
             
@@ -2693,6 +3408,20 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
             // Veritabanına kaydet
             chrome.storage.local.set({ contracts }, () => {
                 alert('Sözleşme başarıyla kaydedildi!');
+                
+                // Popup'ı kapat
+                const popupContainer = document.querySelector('.quick-petition-viewer-container');
+                if (popupContainer) {
+                    document.body.removeChild(popupContainer);
+                }
+                
+                // Sözleşme listesini güncelle
+                this.loadContractsData();
+                
+                // Sözleşme kartları olaylarını ayarla
+                setTimeout(() => {
+                    this.setupContractCardEvents();
+                }, 300);
             });
         });
     }
@@ -2704,7 +3433,7 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
         const date = new Date().toLocaleDateString('tr-TR');
         
         // HTML dosyası için tam içerik
-        const fullHtml = `
+        const htmlContent = `
         <!DOCTYPE html>
         <html lang="tr">
         <head>
@@ -2766,30 +3495,20 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
         </html>
         `;
         
-        // HTML içeriğini geçici bir div element içerisine yerleştirme
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = fullHtml;
-        tempDiv.style.position = 'absolute';
-        tempDiv.style.left = '-9999px';
-        document.body.appendChild(tempDiv);
+        // Dosya adı oluştur
+        const formattedDate = date.replace(/\//g, '-');
+        const fileName = `Avukatlık_Sözleşmesi_${clientName.replace(/\s+/g, '_')}_${formattedDate}.html`;
         
-        // PDF dosya ismi
-        const fileName = `Avukatlık_Sözleşmesi_${clientName.replace(/\s+/g, '_')}_${date.replace(/\//g, '-')}.pdf`;
-        
-        // PDF dönüştürme ve indirme işlemi için seçenekler
-        const options = {
-            margin: 10,
-            filename: fileName,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        
-        // HTML'i PDF'e dönüştür ve indir
-        html2pdf().set(options).from(tempDiv).save().then(() => {
-            // İşlem tamamlandıktan sonra geçici elemanı kaldır
-            document.body.removeChild(tempDiv);
-        });
+        // Dosyayı indir
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
     
     showPetitionEditor(petition, index) {
@@ -3064,7 +3783,7 @@ ICERIK_BITIS`;
         const searchInput = document.querySelector('.case-notes-search-input');
         const addInput = document.querySelector('.case-notes-add-input');
         const addButton = document.querySelector('.add-case-note-btn');
-        
+
         // Notları görüntüle
         this.displayCaseNotes();
         
@@ -3074,7 +3793,7 @@ ICERIK_BITIS`;
                 this.filterCaseNotes(searchInput.value);
             });
         }
-        
+
         // Yeni not ekleme
         if (addButton && addInput) {
             addButton.addEventListener('click', () => {
@@ -3084,7 +3803,7 @@ ICERIK_BITIS`;
                     addInput.value = '';
                 }
             });
-            
+
             addInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     const noteText = addInput.value.trim();
@@ -3094,6 +3813,20 @@ ICERIK_BITIS`;
                     }
                 }
             });
+        }
+    }
+    
+    setupReportsEvents() {
+        // İleride raporlar bölümü için gerekli olacak temel işlevler
+        const reportsContainer = document.getElementById('reports-container');
+        if (reportsContainer) {
+            // Raporlar bölümünün temel yapısını hazırla
+            const placeholder = reportsContainer.querySelector('.reports-placeholder');
+            if (placeholder) {
+                placeholder.style.textAlign = 'center';
+                placeholder.style.padding = '30px';
+                placeholder.style.color = '#666';
+            }
         }
     }
     
@@ -3236,56 +3969,1139 @@ ICERIK_BITIS`;
 
     // Müvekkilleri aranan metne göre filtrele
     filterClients(searchText) {
-        const clientCards = document.querySelectorAll('.client-card');
-        if (!clientCards.length) return;
+        // Arama işlevi kaldırıldı
+        return;
+    }
+
+    generateMeetingNotesForm() {
+        return `
+            <div class="meeting-note-form-wizard">
+                <div class="wizard-header">
+                    <div class="wizard-steps">
+                        <div class="wizard-step active" data-step="1">1. Tutanak Özellikleri</div>
+                        <div class="wizard-step" data-step="2">2. Avukat Bilgileri</div>
+                        <div class="wizard-step" data-step="3">3. Müvekkil Bilgileri</div>
+                        <div class="wizard-step" data-step="4">4. Avukat Sözü</div>
+                        <div class="wizard-step" data-step="5">5. Müvekkil Sözü</div>
+                        <div class="wizard-step" data-step="6">6. Genel Hükümler</div>
+                        <div class="wizard-step" data-step="7">7. Önizleme</div>
+                    </div>
+                </div>
+                
+                <div class="wizard-content">
+                    <!-- Adım 1: Tutanak Özellikleri -->
+                    <div class="wizard-page active" data-page="1">
+                        <div class="form-row full-width">
+                            <label>Tutanak Tipi:</label>
+                            <select id="meeting-type">
+                                <option value="ilk_gorusme">İlk Görüşme Tutanağı</option>
+                                <option value="dava_sonrasi">Dava Sonrası Görüşme</option>
+                                <option value="uzlasma">Uzlaşma Görüşmesi</option>
+                                <option value="bilgilendirme">Bilgilendirme Toplantısı</option>
+                                <option value="diger">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Görüşme Yeri:</label>
+                            <input type="text" id="meeting-location" placeholder="Avukat Bürosu, İstanbul" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Görüşme Tarihi:</label>
+                            <input type="date" id="meeting-date" value="${new Date().toISOString().split('T')[0]}" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Görüşme Saati:</label>
+                            <input type="time" id="meeting-time" value="${new Date().toTimeString().slice(0, 5)}" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Adım 2: Avukat Bilgileri -->
+                    <div class="wizard-page" data-page="2">
+                        <div class="form-row full-width">
+                            <label>Avukat Adı Soyadı:</label>
+                            <input type="text" id="lawyer-name" placeholder="Avukat adı soyadı" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Avukat Barosu:</label>
+                            <input type="text" id="lawyer-bar" placeholder="Barosu" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Avukat Baro Sicil No:</label>
+                            <input type="text" id="lawyer-bar-id" placeholder="Baro sicil numarası" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Avukat Adres:</label>
+                            <textarea id="lawyer-address" placeholder="Avukat ofis adresi" required></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Adım 3: Müvekkil Bilgileri -->
+                    <div class="wizard-page" data-page="3">
+                        <div class="form-row full-width">
+                            <label>Müvekkil Adı Soyadı/Unvan:</label>
+                            <input type="text" id="client-name" placeholder="Müvekkil adı soyadı veya unvanı" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Müvekkil T.C./Vergi No:</label>
+                            <input type="text" id="client-id" placeholder="T.C. Kimlik No / Vergi No" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Müvekkil Telefon:</label>
+                            <input type="text" id="client-phone" placeholder="Telefon numarası" required>
+                        </div>
+                        <div class="form-row full-width">
+                            <label>Müvekkil Adres:</label>
+                            <textarea id="client-address" placeholder="Müvekkil adresi" required></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Adım 4: Avukat Sözü -->
+                    <div class="wizard-page" data-page="4">
+                        <div class="form-row full-width">
+                            <label>Avukat Beyanı:</label>
+                            <textarea id="lawyer-statement" style="height: 250px; min-height: 250px;" placeholder="Avukatın müvekkile aktardığı bilgiler, tavsiyeler ve hukuki değerlendirmeler..." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Adım 5: Müvekkil Sözü -->
+                    <div class="wizard-page" data-page="5">
+                        <div class="form-row full-width">
+                            <label>Müvekkil Beyanı:</label>
+                            <textarea id="client-statement" style="height: 250px; min-height: 250px;" placeholder="Müvekkilin avukata aktardığı olay, talep ve beklentiler..." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Adım 6: Genel Hükümler -->
+                    <div class="wizard-page" data-page="6">
+                        <div class="form-row full-width">
+                            <label>Tutanak Hükümleri:</label>
+                            <textarea id="meeting-terms" style="height: 250px; min-height: 250px;" required>
+İş bu tutanak, görüşme sırasında avukat ve müvekkil arasında yapılan konuşmalardan ve alınan kararlardan oluşmaktadır.
+
+Görüşme tutanağı tarafların hak ve yükümlülüklerini belirlemek, ileride ortaya çıkabilecek anlaşmazlıkları önlemek ve müvekkile verilen bilgileri kayıt altına almak amacıyla hazırlanmıştır.
+
+Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekkil ilişkisi içerisinde tanınan istisnalar dışında paylaşılamaz.
+
+İş bu tutanak iki nüsha olarak düzenlenmiş olup, bir nüshası müvekkile verilmiştir.
+                            </textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Adım 7: Önizleme -->
+                    <div class="wizard-page" data-page="7">
+                        <div class="form-row full-width">
+                            <div id="meeting-note-preview-content" class="contract-preview">
+                                <!-- Önizleme içeriği JavaScript tarafından doldurulacak -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="wizard-footer">
+                    <div class="wizard-status">Adım 1/7</div>
+                    <div class="wizard-navigation">
+                        <button class="prev-step-btn" disabled>Geri</button>
+                        <button class="next-step-btn">İleri</button>
+                        <button class="finish-btn" style="display: none;">Tamamla</button>
+                    </div>
+                </div>
+                
+                <style>
+                    .meeting-note-form-wizard {
+                        display: flex;
+                        flex-direction: column;
+                        height: 100%;
+                    }
+                    
+                    .wizard-header {
+                        border-bottom: 1px solid #ddd;
+                        padding-bottom: 15px;
+                        margin-bottom: 20px;
+                    }
+                    
+                    .wizard-steps {
+                        display: flex;
+                        justify-content: space-between;
+                        flex-wrap: wrap;
+                        gap: 5px;
+                        position: relative;
+                    }
+                    
+                    .wizard-steps:after {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                        right: 0;
+                        height: 2px;
+                        background-color: #e9ecef;
+                        transform: translateY(-50%);
+                        z-index: 0;
+                    }
+                    
+                    .wizard-step {
+                        font-size: 12px;
+                        color: #666;
+                        padding: 8px 12px;
+                        border-radius: 15px;
+                        background-color: #f5f5f5;
+                        cursor: default;
+                        flex: 1;
+                        text-align: center;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        position: relative;
+                        z-index: 1;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .wizard-step.active {
+                        background-color: #4a76a8;
+                        color: white;
+                        font-weight: bold;
+                    }
+                    
+                    .wizard-content {
+                        flex: 1;
+                        overflow-y: auto;
+                        min-height: 400px;
+                        padding: 10px;
+                    }
+                    
+                    .wizard-page {
+                        display: none;
+                        padding: 15px 5px;
+                    }
+                    
+                    .wizard-page.active {
+                        display: block;
+                    }
+                    
+                    .form-row {
+                        display: flex;
+                        flex-direction: column;
+                        margin-bottom: 20px;
+                        min-height: 70px;
+                        box-sizing: border-box;
+                    }
+                    
+                    .form-row label {
+                        display: block;
+                        margin-bottom: 8px;
+                        font-weight: bold;
+                        color: #333;
+                    }
+                    
+                    .form-row input,
+                    .form-row select,
+                    .form-row textarea {
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        box-sizing: border-box;
+                        font-size: 14px;
+                    }
+                    
+                    .form-row input:focus,
+                    .form-row select:focus,
+                    .form-row textarea:focus {
+                        outline: none;
+                        border-color: #4a76a8;
+                        box-shadow: 0 0 0 2px rgba(74, 118, 168, 0.2);
+                    }
+                    
+                    .form-row textarea {
+                        flex-grow: 1;
+                        min-height: 80px;
+                        resize: vertical;
+                    }
+                    
+                    .wizard-footer {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-top: 10px;
+                        padding-top: 15px;
+                        border-top: 1px solid #ddd;
+                    }
+                    
+                    .wizard-navigation {
+                        display: flex;
+                        gap: 10px;
+                    }
+                    
+                    .wizard-navigation button {
+                        padding: 8px 20px;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        transition: background-color 0.2s;
+                    }
+                    
+                    .prev-step-btn {
+                        background-color: #6c757d;
+                        color: white;
+                    }
+                    
+                    .prev-step-btn:disabled {
+                        background-color: #cccccc;
+                        cursor: not-allowed;
+                    }
+                    
+                    .next-step-btn {
+                        background-color: #4a76a8;
+                        color: white;
+                    }
+                    
+                    .finish-btn {
+                        background-color: #28a745;
+                        color: white;
+                    }
+                    
+                    .wizard-status {
+                        font-size: 14px;
+                        color: #666;
+                    }
+                    
+                    #meeting-note-preview-content {
+                        border: 1px solid #ddd;
+                        padding: 20px;
+                        background-color: #f9f9f9;
+                        height: 400px;
+                        overflow-y: auto;
+                        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+                        border-radius: 4px;
+                        line-height: 1.6;
+                    }
+                    
+                    #meeting-note-preview-content h2 {
+                        text-align: center;
+                        margin-bottom: 20px;
+                        color: #333;
+                        font-size: 1.6rem;
+                    }
+                    
+                    #meeting-note-preview-content h3 {
+                        color: #4a76a8;
+                        margin-top: 25px;
+                        margin-bottom: 15px;
+                        font-size: 1.3rem;
+                        border-bottom: 1px solid #eee;
+                        padding-bottom: 5px;
+                    }
+                    
+                    #meeting-note-preview-content h4 {
+                        color: #555;
+                        margin-top: 15px;
+                        margin-bottom: 10px;
+                        font-size: 1.1rem;
+                    }
+                    
+                    #meeting-note-preview-content p {
+                        margin-bottom: 10px;
+                    }
+                    
+                    @media (min-width: 768px) {
+                        .wizard-page.active {
+                            display: block;
+                            padding: 15px;
+                        }
+                        
+                        .wizard-page .form-row.full-width {
+                            width: 100%;
+                        }
+                    }
+                </style>
+            </div>
+        `;
+    }
+
+    setupMeetingNoteFormEvents() {
+        const nextButtons = document.querySelectorAll('.next-step-btn');
+        const prevButtons = document.querySelectorAll('.prev-step-btn');
+        const wizardSteps = document.querySelectorAll('.wizard-step');
+        const wizardPages = document.querySelectorAll('.wizard-page');
+        const finishButton = document.querySelector('.finish-btn');
+        const wizardStatus = document.querySelector('.wizard-status');
         
-        // Arama metni yok veya 1 karakterden kısaysa tüm kartları göster
-        if (!searchText || searchText.length < 1) {
-            clientCards.forEach(card => {
-                card.classList.remove('hidden');
+        // Form sayfaları arasındaki geçişi takip etmek için sayaç
+        let currentPage = 0;
+        
+        // Sayfalar arasında geçiş için yardımcı fonksiyon
+        const showPage = (pageIndex) => {
+            // Önce tüm sayfaları gizle
+            wizardPages.forEach((page, index) => {
+                page.style.display = 'none';
+                page.classList.remove('active');
             });
-            return;
+            
+            // Sadece aktif sayfayı göster
+            if (wizardPages[pageIndex]) {
+                wizardPages[pageIndex].style.display = '';
+                wizardPages[pageIndex].classList.add('active');
+            }
+            
+            // Adım göstergesini güncelle
+            if (wizardStatus) {
+                wizardStatus.textContent = `Adım ${pageIndex + 1}/${wizardPages.length}`;
+            }
+            
+            // Adım durumlarını güncelle
+            wizardSteps.forEach((step, index) => {
+                step.classList.toggle('active', index === pageIndex);
+            });
+            
+            // Düğmeleri güncelle
+            prevButtons.forEach(btn => {
+                btn.disabled = pageIndex === 0;
+            });
+            
+            // Son adıma geçildiğinde (Önizleme adımı)
+            if (pageIndex === wizardPages.length - 1) {
+                nextButtons.forEach(btn => btn.style.display = 'none');
+                if (finishButton) finishButton.style.display = 'block';
+                
+                // Son adımda önizleme içeriğini güncelle
+                const meetingNoteContent = this.generateMeetingNoteContent();
+                const previewContent = document.querySelector('#meeting-note-preview-content');
+                if (previewContent) {
+                    previewContent.innerHTML = meetingNoteContent;
+                }
+            } else {
+                nextButtons.forEach(btn => btn.style.display = 'block');
+                if (finishButton) finishButton.style.display = 'none';
+            }
+            
+            currentPage = pageIndex;
+        };
+
+        // İlk sayfayı etkinleştir
+        if (wizardPages.length > 0) {
+            showPage(0);
         }
         
-        // Arama metni küçük harfe çevir (case-insensitive arama için)
-        searchText = searchText.toLowerCase();
+        // İleri butonlarına tıklama olayı
+        nextButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (currentPage < wizardPages.length - 1) {
+                    // Mevcut sayfadaki zorunlu alanları kontrol et
+                    const currentWizardPage = wizardPages[currentPage];
+                    const requiredInputs = currentWizardPage.querySelectorAll('input[required], select[required], textarea[required]');
+                    let allFieldsFilled = true;
+                    let firstEmptyField = null;
+                    
+                    requiredInputs.forEach(input => {
+                        if (input.value.trim() === '') {
+                            allFieldsFilled = false;
+                            if (!firstEmptyField) {
+                                firstEmptyField = input;
+                            }
+                        }
+                    });
+                    
+                    if (allFieldsFilled) {
+                        showPage(currentPage + 1);
+                    } else {
+                        alert('Lütfen tüm zorunlu alanları doldurunuz.');
+                        if (firstEmptyField) {
+                            firstEmptyField.focus();
+                        }
+                    }
+                }
+            });
+        });
+
+        // Geri butonlarına tıklama olayı
+        prevButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (currentPage > 0) {
+                    showPage(currentPage - 1);
+                }
+            });
+        });
+
+        // Avukat bilgilerini otomatik doldur
+        this.autoFillLawyerInfo(document.querySelector('.meeting-note-form-wizard'));
+
+        // Tamamla butonuna tıklama olayı
+        if (finishButton) {
+            finishButton.addEventListener('click', () => {
+                this.saveMeetingNote();
+                this.downloadMeetingNote();
+            });
+        }
+    }
+
+    generateMeetingNoteContent() {
+        const meetingType = document.querySelector('#meeting-type')?.value || 'İlk Görüşme';
+        const meetingDate = document.querySelector('#meeting-date')?.value || new Date().toISOString().split('T')[0];
+        const meetingTime = document.querySelector('#meeting-time')?.value || new Date().toTimeString().slice(0, 5);
+        const meetingLocation = document.querySelector('#meeting-location')?.value || 'Belirtilmedi';
         
-        // Her müvekkil kartını kontrol et
-        clientCards.forEach(card => {
-            const clientName = card.querySelector('.client-card-header h5').textContent.toLowerCase();
-            
-            // Aranan metin müvekkil adında bulunuyorsa göster, yoksa gizle
-            if (clientName.startsWith(searchText)) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
+        const lawyerName = document.querySelector('#lawyer-name')?.value || '[Avukat Adı]';
+        const lawyerBar = document.querySelector('#lawyer-bar')?.value || '[Avukat Barosu]';
+        const lawyerBarId = document.querySelector('#lawyer-bar-id')?.value || '[Sicil No]';
+        const lawyerAddress = document.querySelector('#lawyer-address')?.value || '[Avukat Adresi]';
+        
+        const clientName = document.querySelector('#client-name')?.value || '[Müvekkil Adı]';
+        const clientId = document.querySelector('#client-id')?.value || '[TC/Vergi No]';
+        const clientPhone = document.querySelector('#client-phone')?.value || '[Telefon]';
+        const clientAddress = document.querySelector('#client-address')?.value || '[Müvekkil Adresi]';
+        
+        const lawyerStatement = document.querySelector('#lawyer-statement')?.value || '';
+        const clientStatement = document.querySelector('#client-statement')?.value || '';
+        const meetingTerms = document.querySelector('#meeting-terms')?.value || '';
+        
+        // Tutanak tipi çevirisi
+        let meetingTypeName = 'İlk Görüşme Tutanağı';
+        if (meetingType === 'dava_sonrasi') meetingTypeName = 'Dava Sonrası Görüşme';
+        else if (meetingType === 'uzlasma') meetingTypeName = 'Uzlaşma Görüşmesi';
+        else if (meetingType === 'bilgilendirme') meetingTypeName = 'Bilgilendirme Toplantısı';
+        else if (meetingType === 'diger') meetingTypeName = 'Görüşme Tutanağı';
+        
+        // Tarih formatı
+        const formattedDate = new Date(meetingDate).toLocaleDateString('tr-TR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
         });
         
-        // Filtreleme sonucu mesajı
-        const displayedCards = document.querySelectorAll('.client-card:not(.hidden)').length;
-        const clientsContainer = document.querySelector('.clients-cards-container');
-        
-        // Eğer hiç sonuç yoksa ve container varsa
-        if (displayedCards === 0 && clientsContainer) {
-            // Varsa eski no-results öğesini kaldır
-            const oldNoResults = document.querySelector('.no-search-results');
-            if (oldNoResults) oldNoResults.remove();
-            
-            // Yeni mesaj ekle
-            const noResults = document.createElement('div');
-            noResults.className = 'no-search-results';
-            noResults.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: #6c757d;">
-                    <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                    <p>"${searchText}" ile eşleşen müvekkil bulunamadı.</p>
+        return `
+            <div class="meeting-note-preview">
+                <h2 style="text-align: center;">${meetingTypeName}</h2>
+                
+                <p style="text-align: right;"><strong>Tarih:</strong> ${formattedDate}<br>
+                <strong>Saat:</strong> ${meetingTime}<br>
+                <strong>Yer:</strong> ${meetingLocation}</p>
+                
+                <h3>1. TOPLANTIYA KATILANLAR</h3>
+                
+                <h4>1.1. Avukat Bilgileri</h4>
+                <p><strong>Adı Soyadı:</strong> ${lawyerName}<br>
+                <strong>Barosu:</strong> ${lawyerBar}<br>
+                <strong>Sicil No:</strong> ${lawyerBarId}<br>
+                <strong>Adres:</strong> ${lawyerAddress}</p>
+                
+                <h4>1.2. Müvekkil Bilgileri</h4>
+                <p><strong>Adı Soyadı/Unvanı:</strong> ${clientName}<br>
+                <strong>TC/Vergi No:</strong> ${clientId}<br>
+                <strong>Telefon:</strong> ${clientPhone}<br>
+                <strong>Adres:</strong> ${clientAddress}</p>
+                
+                <h3>2. GÖRÜŞME İÇERİĞİ</h3>
+                
+                <h4>2.1. Avukat Beyanı</h4>
+                <p>${lawyerStatement.replace(/\n/g, '<br>')}</p>
+                
+                <h4>2.2. Müvekkil Beyanı</h4>
+                <p>${clientStatement.replace(/\n/g, '<br>')}</p>
+                
+                <h3>3. GENEL HÜKÜMLER</h3>
+                <p>${meetingTerms.replace(/\n/g, '<br>')}</p>
+                
+                <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+                    <div style="width: 45%;">
+                        <p style="text-align: center; margin-bottom: 40px;">Avukat</p>
+                        <p style="text-align: center;">${lawyerName}</p>
+                        <p style="text-align: center;">İmza</p>
+                    </div>
+                    <div style="width: 45%;">
+                        <p style="text-align: center; margin-bottom: 40px;">Müvekkil</p>
+                        <p style="text-align: center;">${clientName}</p>
+                        <p style="text-align: center;">İmza</p>
+                    </div>
                 </div>
+            </div>
+        `;
+    }
+
+    saveMeetingNote() {
+        // Meeting note bilgilerini al
+        const meetingType = document.querySelector('#meeting-type')?.value;
+        const meetingDate = document.querySelector('#meeting-date')?.value;
+        const clientName = document.querySelector('#client-name')?.value;
+        
+        // Kaydedilecek veriyi oluştur
+        const meetingNote = {
+            id: Date.now(),
+            type: meetingType,
+            date: meetingDate,
+            clientName: clientName,
+            lawyerName: document.querySelector('#lawyer-name')?.value,
+            lawyerStatement: document.querySelector('#lawyer-statement')?.value,
+            clientStatement: document.querySelector('#client-statement')?.value,
+            content: this.generateMeetingNoteContent()
+        };
+        
+        // Mevcut görüşme notlarını al
+        let meetingNotes = JSON.parse(localStorage.getItem('uyap_asistan_meeting_notes') || '[]');
+        
+        // Yeni notu ekle
+        meetingNotes.push(meetingNote);
+        
+        // Local storage'a kaydet
+        localStorage.setItem('uyap_asistan_meeting_notes', JSON.stringify(meetingNotes));
+        
+        // Kullanıcıya bilgi ver
+        alert('Görüşme tutanağı başarıyla kaydedildi.');
+        
+        // Popup'ı kapat
+        const popupContainer = document.querySelector('.quick-petition-viewer-container');
+        if (popupContainer) {
+            document.body.removeChild(popupContainer);
+        }
+        
+        // Görüşme notları listesini güncelle
+        this.loadMeetingNotesData();
+    }
+
+    downloadMeetingNote() {
+        const meetingNoteContent = this.generateMeetingNoteContent();
+        const clientName = document.querySelector('#client-name')?.value || 'müvekkil';
+        const meetingDate = document.querySelector('#meeting-date')?.value || new Date().toISOString().split('T')[0];
+        
+        // HTML içeriğini oluştur
+        const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="tr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Görüşme Tutanağı - ${clientName}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.5;
+                    margin: 40px;
+                }
+                h1, h2, h3, h4 {
+                    color: #333;
+                }
+                .meeting-note-preview {
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+            </style>
+        </head>
+        <body>
+            ${meetingNoteContent}
+        </body>
+        </html>
+        `;
+        
+        // Dosya adı oluştur
+        const formattedDate = meetingDate.replace(/-/g, '');
+        const fileName = `Gorusme_Tutanagi_${clientName.replace(/\s+/g, '_')}_${formattedDate}.html`;
+        
+        // Dosyayı indir
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    setupMeetingNoteCardEvents() {
+        // Görüntüle butonları
+        const viewButtons = document.querySelectorAll('.view-meeting-note');
+        viewButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = e.currentTarget.getAttribute('data-index');
+                this.viewMeetingNote(index);
+            });
+        });
+        
+        // İndir butonları
+        const downloadButtons = document.querySelectorAll('.download-meeting-note');
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = e.currentTarget.getAttribute('data-index');
+                this.downloadExistingMeetingNote(index);
+            });
+        });
+        
+        // Sil butonları
+        const deleteButtons = document.querySelectorAll('.delete-meeting-note');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = e.currentTarget.getAttribute('data-index');
+                this.deleteMeetingNote(index);
+            });
+        });
+    }
+
+    viewMeetingNote(index) {
+        // Local storage'dan görüşme tutanaklarını al
+        const meetingNotes = JSON.parse(localStorage.getItem('uyap_asistan_meeting_notes') || '[]');
+        const note = meetingNotes[index];
+        
+        if (!note) return;
+        
+        // Popup oluştur
+        const popupContainer = document.createElement('div');
+        popupContainer.className = 'quick-petition-viewer-container';
+        
+        // Popup içeriği
+        popupContainer.innerHTML = `
+            <div class="quick-petition-popup">
+                <div class="quick-petition-header">
+                    <h3>GÖRÜŞME TUTANAĞI GÖRÜNTÜLEME</h3>
+                    <div class="quick-petition-close">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div class="quick-petition-content">
+                    <div class="meeting-note-preview-container">
+                        ${note.content}
+                    </div>
+                    <div class="meeting-note-actions" style="margin-top: 20px; text-align: center; padding: 15px; background: none; border-top: 1px solid #ddd;">
+                        <button class="download-viewed-meeting-note" style="background-color: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.2s;">
+                            <i class="fas fa-download"></i> İndir
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .meeting-note-preview-container {
+                    padding: 30px;
+                    max-height: 70vh;
+                    overflow-y: auto;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    background-color: #fff;
+                    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+                    line-height: 1.6;
+                }
+                
+                .meeting-note-preview-container h2 {
+                    text-align: center;
+                    color: #333;
+                    margin-bottom: 20px;
+                    font-size: 1.8rem;
+                }
+                
+                .meeting-note-preview-container h3 {
+                    color: #4a76a8;
+                    margin-top: 30px;
+                    margin-bottom: 15px;
+                    font-size: 1.4rem;
+                    border-bottom: 1px solid #eee;
+                    padding-bottom: 8px;
+                }
+                
+                .meeting-note-preview-container h4 {
+                    color: #555;
+                    margin-top: 20px;
+                    margin-bottom: 10px;
+                    font-size: 1.2rem;
+                }
+                
+                .meeting-note-preview-container p {
+                    margin-bottom: 15px;
+                }
+                
+                .meeting-note-preview-container strong {
+                    color: #333;
+                }
+                
+                .download-viewed-meeting-note:hover {
+                    background-color: #138496;
+                }
+                
+                @media print {
+                    .quick-petition-header, .meeting-note-actions {
+                        display: none;
+                    }
+                    
+                    .meeting-note-preview-container {
+                        border: none;
+                        box-shadow: none;
+                        max-height: none;
+                        padding: 0;
+                    }
+                    
+                    .quick-petition-popup {
+                        width: 100%;
+                        height: auto;
+                    }
+                }
+            </style>
+        `;
+        
+        // Popup'ı sayfaya ekle
+        document.body.appendChild(popupContainer);
+        
+        // İndir butonuna tıklama olayı
+        const downloadButton = popupContainer.querySelector('.download-viewed-meeting-note');
+        if (downloadButton) {
+            downloadButton.addEventListener('click', () => {
+                this.downloadExistingMeetingNote(index);
+            });
+        }
+        
+        // Kapatma butonuna tıklama olayı
+        const closeButton = popupContainer.querySelector('.quick-petition-close');
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(popupContainer);
+        });
+        
+        // ESC tuşu ile kapatma
+        const handleEscKey = (e) => {
+            if (e.key === 'Escape') {
+                document.body.removeChild(popupContainer);
+                document.removeEventListener('keydown', handleEscKey);
+            }
+        };
+        document.addEventListener('keydown', handleEscKey);
+    }
+
+    downloadExistingMeetingNote(index) {
+        // Local storage'dan görüşme tutanaklarını al
+        const meetingNotes = JSON.parse(localStorage.getItem('uyap_asistan_meeting_notes') || '[]');
+        const note = meetingNotes[index];
+        
+        if (!note) return;
+        
+        // HTML içeriğini oluştur
+        const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="tr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Görüşme Tutanağı - ${note.clientName || 'müvekkil'}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.5;
+                    margin: 40px;
+                }
+                h1, h2, h3, h4 {
+                    color: #333;
+                }
+                .meeting-note-preview {
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+            </style>
+        </head>
+        <body>
+            ${note.content}
+        </body>
+        </html>
+        `;
+        
+        // Dosya adı oluştur
+        const formattedDate = note.date.replace(/-/g, '');
+        const fileName = `Gorusme_Tutanagi_${(note.clientName || 'müvekkil').replace(/\s+/g, '_')}_${formattedDate}.html`;
+        
+        // Dosyayı indir
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    deleteMeetingNote(index) {
+        // Silme işlemi için kullanıcıdan onay iste
+        if (confirm('Bu görüşme tutanağını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) {
+            // Local storage'dan görüşme tutanaklarını al
+            let meetingNotes = JSON.parse(localStorage.getItem('uyap_asistan_meeting_notes') || '[]');
+            
+            // İndeks kontrol et
+            if (index >= 0 && index < meetingNotes.length) {
+                // Görüşme tutanağını sil
+                meetingNotes.splice(index, 1);
+                
+                // Güncellenmiş listeyi local storage'a kaydet
+                localStorage.setItem('uyap_asistan_meeting_notes', JSON.stringify(meetingNotes));
+                
+                // Görüşme tutanakları listesini güncelle
+                this.loadMeetingNotesData();
+                
+                // Kullanıcıya bilgi ver
+                alert('Görüşme tutanağı başarıyla silindi.');
+            }
+        }
+    }
+
+    setupContractCardEvents() {
+        // Görüntüle butonları
+        const viewButtons = document.querySelectorAll('.view-contract');
+        viewButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = e.currentTarget.getAttribute('data-index');
+                this.viewContract(index);
+            });
+        });
+        
+        // İndir butonları
+        const downloadButtons = document.querySelectorAll('.download-contract');
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = e.currentTarget.getAttribute('data-index');
+                this.downloadExistingContract(index);
+            });
+        });
+        
+        // Sil butonları
+        const deleteButtons = document.querySelectorAll('.delete-contract');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = e.currentTarget.getAttribute('data-index');
+                this.deleteContract(index);
+            });
+        });
+    }
+
+    downloadExistingContract(index) {
+        // Chrome storage'dan sözleşmeleri al
+        chrome.storage.local.get(['contracts'], (result) => {
+            const contracts = result.contracts || [];
+            const contract = contracts[index];
+            
+            if (!contract) return;
+            
+            const clientName = contract.clientName || 'İsimsiz Müvekkil';
+            const date = new Date(contract.createdAt).toLocaleDateString('tr-TR');
+            
+            // HTML dosyası için tam içerik
+            const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="tr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Avukatlık Ücret Sözleşmesi - ${clientName}</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 40px;
+                        line-height: 1.5;
+                    }
+                    h1 {
+                        text-align: center;
+                        margin-bottom: 30px;
+                    }
+                    .date {
+                        text-align: right;
+                        margin-bottom: 20px;
+                    }
+                    .signature-container {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-top: 50px;
+                    }
+                    .signature {
+                        text-align: center;
+                        width: 45%;
+                    }
+                    .signature-line {
+                        border-top: 1px solid #000;
+                        margin: 50px 0 10px 0;
+                    }
+                    @media print {
+                        body {
+                            margin: 20px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="date">Tarih: ${date}</div>
+                <h1>AVUKATLIK ÜCRET SÖZLEŞMESİ</h1>
+                <div class="content">
+                    ${contract.content}
+                </div>
+                
+                <div class="signature-container">
+                    <div class="signature">
+                        <div class="signature-line"></div>
+                        <p>İş Sahibi<br>${clientName}</p>
+                    </div>
+                    <div class="signature">
+                        <div class="signature-line"></div>
+                        <p>Avukat<br>${contract.lawyerName || 'Avukat'}</p>
+                    </div>
+                </div>
+            </body>
+            </html>
             `;
-            clientsContainer.appendChild(noResults);
-        } else {
-            // Sonuç varsa, no-results öğesini kaldır
-            const noResults = document.querySelector('.no-search-results');
-            if (noResults) noResults.remove();
+            
+            // Dosya adı oluştur
+            const formattedDate = date.replace(/\//g, '-');
+            const fileName = `Avukatlık_Sözleşmesi_${clientName.replace(/\s+/g, '_')}_${formattedDate}.html`;
+            
+            // Dosyayı indir
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    viewContract(index) {
+        // Chrome storage'dan sözleşmeleri al
+        chrome.storage.local.get(['contracts'], (result) => {
+            const contracts = result.contracts || [];
+            const contract = contracts[index];
+            
+            if (!contract) return;
+            
+            // Popup oluştur
+            const popupContainer = document.createElement('div');
+            popupContainer.className = 'quick-petition-viewer-container';
+            
+            // Popup içeriği
+            popupContainer.innerHTML = `
+                <div class="quick-petition-popup">
+                    <div class="quick-petition-header">
+                        <h3>SÖZLEŞME GÖRÜNTÜLEME</h3>
+                        <div class="quick-petition-close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    <div class="quick-petition-content">
+                        <div class="contract-preview-container">
+                            ${contract.content}
+                        </div>
+                        <div class="contract-actions" style="margin-top: 20px; text-align: center; padding: 15px; background: none; border-top: 1px solid #ddd;">
+                            <button class="download-viewed-contract" style="background-color: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.2s;">
+                                <i class="fas fa-download"></i> İndir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    .contract-preview-container {
+                        padding: 30px;
+                        max-height: 70vh;
+                        overflow-y: auto;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        background-color: #fff;
+                        box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+                        line-height: 1.6;
+                    }
+                    
+                    .contract-preview-container h2 {
+                        text-align: center;
+                        color: #333;
+                        margin-bottom: 20px;
+                        font-size: 1.8rem;
+                    }
+                    
+                    .contract-preview-container h3 {
+                        color: #4a76a8;
+                        margin-top: 30px;
+                        margin-bottom: 15px;
+                        font-size: 1.4rem;
+                        border-bottom: 1px solid #eee;
+                        padding-bottom: 8px;
+                    }
+                    
+                    .contract-preview-container h4 {
+                        color: #555;
+                        margin-top: 20px;
+                        margin-bottom: 10px;
+                        font-size: 1.2rem;
+                    }
+                    
+                    .contract-preview-container p {
+                        margin-bottom: 15px;
+                    }
+                    
+                    .contract-preview-container strong {
+                        color: #333;
+                    }
+                    
+                    .download-viewed-contract:hover {
+                        background-color: #138496;
+                    }
+                    
+                    @media print {
+                        .quick-petition-header, .contract-actions {
+                            display: none;
+                        }
+                        
+                        .contract-preview-container {
+                            border: none;
+                            box-shadow: none;
+                            max-height: none;
+                            padding: 0;
+                        }
+                        
+                        .quick-petition-popup {
+                            width: 100%;
+                            height: auto;
+                        }
+                    }
+                </style>
+            `;
+            
+            // Sayfaya ekle
+            document.body.appendChild(popupContainer);
+            
+            // Kapatma butonuna tıklama olayı
+            const closeButton = popupContainer.querySelector('.quick-petition-close');
+            closeButton.addEventListener('click', () => {
+                document.body.removeChild(popupContainer);
+            });
+            
+            // İndir butonuna tıklama olayı
+            const downloadButton = popupContainer.querySelector('.download-viewed-contract');
+            downloadButton.addEventListener('click', () => {
+                this.downloadExistingContract(index);
+            });
+            
+            // ESC tuşu ile kapatma
+            const handleEscKey = (e) => {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(popupContainer);
+                    document.removeEventListener('keydown', handleEscKey);
+                }
+            };
+            document.addEventListener('keydown', handleEscKey);
+        });
+    }
+    
+    deleteContract(index) {
+        // Kullanıcıya silme işlemini onayla
+        if (confirm('Bu sözleşmeyi silmek istediğinizden emin misiniz?')) {
+            // Chrome storage'dan sözleşmeleri al
+            chrome.storage.local.get(['contracts'], (result) => {
+                const contracts = result.contracts || [];
+                
+                // Eğer index geçerliyse sözleşmeyi sil
+                if (index >= 0 && index < contracts.length) {
+                    contracts.splice(index, 1);
+                    
+                    // Güncellenmiş listeyi kaydet
+                    chrome.storage.local.set({ contracts }, () => {
+                        // Listeyi güncelle
+                        this.loadContractsData();
+                        alert('Sözleşme başarıyla silindi.');
+                    });
+                }
+            });
         }
     }
 }
