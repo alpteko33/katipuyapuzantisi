@@ -1147,6 +1147,22 @@ class Account {
     }
 
     setupClientEvents() {
+        // Arama fonksiyonunu kur
+        const searchInput = document.querySelector('.clients-search-input');
+        if (searchInput) {
+            // Input olayını dinle
+            searchInput.addEventListener('input', (e) => {
+                this.filterClients(e.target.value);
+            });
+            
+            // Enter tuşu ile arama 
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.filterClients(e.target.value);
+                }
+            });
+        }
+        
         // Müvekkil verileri güncellendiğinde dinle
         window.addEventListener('muvekkilDataUpdated', (event) => {
             this.displayClientData(event.detail.muvekkilVerileri);
@@ -1154,6 +1170,211 @@ class Account {
         
         // İlk yükleme
         this.loadClientData();
+    }
+
+    showClientDetails(muvekkil, davalar) {
+        const overlay = document.createElement('div');
+        overlay.className = 'client-details-overlay';
+        
+        const popup = document.createElement('div');
+        popup.className = 'client-details-popup';
+        
+        let davaListHTML = '';
+        davalar.forEach(dava => {
+            davaListHTML += `
+                <div class="client-detail-case">
+                    <div class="client-detail-case-header">
+                        <span class="client-role-badge">${muvekkil.tip}</span>
+                        <span class="client-case-date">${new Date(dava.tarih).toLocaleDateString('tr-TR')}</span>
+                    </div>
+                    <div class="client-detail-case-body">
+                        <p><i class="fas fa-gavel"></i> ${dava.mahkeme}</p>
+                        <p><i class="fas fa-hashtag"></i> ${dava.davaNo}</p>
+                    </div>
+                </div>
+            `;
+        });
+        
+        popup.innerHTML = `
+            <div class="client-details-close">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="client-details-header">
+                <h3>${muvekkil.ad}</h3>
+                <span class="client-details-role">${muvekkil.tip}</span>
+            </div>
+            <div class="client-details-tabs">
+                <button class="client-tab active" data-tab="info">Bilgiler</button>
+                <button class="client-tab" data-tab="cases">Davalar</button>
+                <button class="client-tab" data-tab="contracts">Sözleşmeler</button>
+                <button class="client-tab" data-tab="meetings">Görüşme Tutanakları</button>
+                <button class="client-tab" data-tab="notes">Notlar</button>
+            </div>
+            <div class="client-details-content">
+                <div class="client-tab-content active" id="info-tab">
+                    <div class="client-details-info">
+                        <div class="client-info-header">
+                            <h4>Müvekkil Bilgileri</h4>
+                            <button class="edit-client-info-btn">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </button>
+                        </div>
+                        <div class="client-info-content">
+                            <p><i class="fas fa-phone"></i> ${muvekkil.telefon || 'Telefon bilgisi yok'}</p>
+                            <p><i class="fas fa-envelope"></i> ${muvekkil.email || 'E-posta bilgisi yok'}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> ${muvekkil.adres || 'Adres bilgisi yok'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="client-tab-content" id="cases-tab">
+                    <div class="client-details-cases">
+                        <div class="client-details-cases-list">
+                            ${davaListHTML}
+                        </div>
+                    </div>
+                </div>
+                <div class="client-tab-content" id="contracts-tab">
+                    <div class="client-details-contracts">
+                        <p class="no-data">Henüz sözleşme bulunmamaktadır.</p>
+                    </div>
+                </div>
+                <div class="client-tab-content" id="meetings-tab">
+                    <div class="client-details-meetings">
+                        <p class="no-data">Henüz görüşme tutanağı bulunmamaktadır.</p>
+                    </div>
+                </div>
+                <div class="client-tab-content" id="notes-tab">
+                    <div class="client-details-notes">
+                        <p class="no-data">Henüz not bulunmamaktadır.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        overlay.appendChild(popup);
+        document.body.appendChild(overlay);
+        
+        // Düzenleme butonu olayı
+        const editBtn = popup.querySelector('.edit-client-info-btn');
+        editBtn.addEventListener('click', () => {
+            const infoContent = popup.querySelector('.client-info-content');
+            infoContent.innerHTML = `
+                <div class="form-row">
+                    <label>Telefon:</label>
+                    <input type="tel" class="edit-client-phone" value="${muvekkil.telefon || ''}" placeholder="Telefon numarası">
+                </div>
+                <div class="form-row">
+                    <label>E-posta:</label>
+                    <input type="email" class="edit-client-email" value="${muvekkil.email || ''}" placeholder="E-posta adresi">
+                </div>
+                <div class="form-row">
+                    <label>Adres:</label>
+                    <textarea class="edit-client-address" placeholder="Adres">${muvekkil.adres || ''}</textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="save-client-info-btn">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                    <button class="cancel-edit-btn">
+                        <i class="fas fa-times"></i> İptal
+                    </button>
+                </div>
+            `;
+            
+            // Kaydet butonu olayı
+            const saveBtn = infoContent.querySelector('.save-client-info-btn');
+            saveBtn.addEventListener('click', () => {
+                const phone = infoContent.querySelector('.edit-client-phone').value;
+                const email = infoContent.querySelector('.edit-client-email').value;
+                const address = infoContent.querySelector('.edit-client-address').value;
+                
+                // Müvekkil bilgilerini güncelle
+                muvekkil.telefon = phone;
+                muvekkil.email = email;
+                muvekkil.adres = address;
+                
+                // Chrome storage'dan mevcut müvekkil verilerini al
+                chrome.storage.local.get(['muvekkilVerileri'], (result) => {
+                    const muvekkilVerileri = result.muvekkilVerileri || [];
+                    
+                    // Müvekkil verilerini güncelle
+                    muvekkilVerileri.forEach(dava => {
+                        dava.muvekkilListesi.forEach(m => {
+                            if (m.ad === muvekkil.ad) {
+                                m.telefon = phone;
+                                m.email = email;
+                                m.adres = address;
+                            }
+                        });
+                    });
+                    
+                    // Güncellenmiş verileri kaydet
+                    chrome.storage.local.set({ muvekkilVerileri }, () => {
+                        // Görünümü güncelle
+                        infoContent.innerHTML = `
+                            <p><i class="fas fa-phone"></i> ${phone || 'Telefon bilgisi yok'}</p>
+                            <p><i class="fas fa-envelope"></i> ${email || 'E-posta bilgisi yok'}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> ${address || 'Adres bilgisi yok'}</p>
+                        `;
+                    });
+                });
+            });
+            
+            // İptal butonu olayı
+            const cancelBtn = infoContent.querySelector('.cancel-edit-btn');
+            cancelBtn.addEventListener('click', () => {
+                infoContent.innerHTML = `
+                    <p><i class="fas fa-phone"></i> ${muvekkil.telefon || 'Telefon bilgisi yok'}</p>
+                    <p><i class="fas fa-envelope"></i> ${muvekkil.email || 'E-posta bilgisi yok'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${muvekkil.adres || 'Adres bilgisi yok'}</p>
+                `;
+            });
+        });
+        
+        // Sekme değiştirme olayları
+        const tabs = popup.querySelectorAll('.client-tab');
+        const tabContents = popup.querySelectorAll('.client-tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Aktif sekmeyi değiştir
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // İlgili içeriği göster
+                const tabId = tab.dataset.tab;
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabId}-tab`) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Kapatma butonu
+        const closeBtn = popup.querySelector('.client-details-close');
+        closeBtn.addEventListener('click', () => {
+            overlay.remove();
+        });
+        
+        // ESC tuşu ile kapatma
+        const handleEscKey = (e) => {
+            if (e.key === 'Escape') {
+                overlay.remove();
+                document.removeEventListener('keydown', handleEscKey);
+            }
+        };
+        
+        document.addEventListener('keydown', handleEscKey);
+        
+        // Overlay'e tıklayarak kapatma
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                document.removeEventListener('keydown', handleEscKey);
+            }
+        });
     }
     
     loadClientData() {
@@ -1233,7 +1454,7 @@ class Account {
                 });
                 
                 cardsHTML += `
-                    <div class="client-card">
+                    <div class="client-card" data-client-name="${muvekkil.ad}">
                         <div class="client-card-header">
                             <h5>${muvekkil.ad}</h5>
                             <span class="client-cases-count">${davalar.length} dava</span>
@@ -1246,6 +1467,18 @@ class Account {
             });
             
             clientsContainer.innerHTML = cardsHTML;
+            
+            // Müvekkil kartlarına tıklama olayı ekle
+            const clientCards = document.querySelectorAll('.client-card');
+            clientCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const clientName = card.dataset.clientName;
+                    const clientGroup = Object.values(groupedClients).find(group => group.muvekkil.ad === clientName);
+                    if (clientGroup) {
+                        this.showClientDetails(clientGroup.muvekkil, clientGroup.davalar);
+                    }
+                });
+            });
             
             // Kart yoksa
             if (!cardsHTML) {
@@ -2742,7 +2975,7 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
         `;
     }
     
-    setupContractFormEvents() {
+    setupContractFormEvents(popupContainer) {
         const previewButton = document.querySelector('#contract-preview-btn');
         const saveButton = document.querySelector('#contract-save-btn');
         const downloadButton = document.querySelector('#contract-download-btn');
@@ -2754,6 +2987,71 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
         const wizardStatus = document.querySelector('.wizard-status');
         const feeAmountInput = document.querySelector('#fee-amount');
         const courtFeeAmountInput = document.querySelector('#court-fee-amount');
+        const clientNameInput = document.querySelector('#client-name');
+        
+        // Müvekkil adı için otomatik tamamlama
+        if (clientNameInput) {
+            let autocompleteList = null;
+            
+            clientNameInput.addEventListener('input', (e) => {
+                const searchText = e.target.value.toLowerCase();
+                
+                // Eğer liste zaten varsa kaldır
+                if (autocompleteList) {
+                    autocompleteList.remove();
+                }
+                
+                // Arama metni en az 1 karakter olmalı
+                if (searchText.length < 1) return;
+                
+                // Chrome storage'dan müvekkil verilerini al
+                chrome.storage.local.get(['muvekkilVerileri'], (result) => {
+                    const muvekkilVerileri = result.muvekkilVerileri || [];
+                    const uniqueClients = new Set();
+                    
+                    // Müvekkilleri filtrele ve benzersiz isimleri topla
+                    muvekkilVerileri.forEach(dava => {
+                        dava.muvekkilListesi.forEach(muvekkil => {
+                            if (muvekkil.ad.toLowerCase().includes(searchText)) {
+                                uniqueClients.add(muvekkil.ad);
+                            }
+                        });
+                    });
+                    
+                    // Eğer eşleşen müvekkil varsa liste oluştur
+                    if (uniqueClients.size > 0) {
+                        autocompleteList = document.createElement('div');
+                        autocompleteList.className = 'autocomplete-list';
+                        
+                        uniqueClients.forEach(clientName => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.textContent = clientName;
+                            
+                            item.addEventListener('click', () => {
+                                clientNameInput.value = clientName;
+                                autocompleteList.remove();
+                            });
+                            
+                            autocompleteList.appendChild(item);
+                        });
+                        
+                        // Input alanının hemen altına listeyi ekle
+                        clientNameInput.parentNode.appendChild(autocompleteList);
+                    }
+                });
+            });
+            
+            // Input alanından çıkıldığında listeyi kaldır
+            document.addEventListener('click', (e) => {
+                if (!clientNameInput.contains(e.target) && 
+                    (!autocompleteList || !autocompleteList.contains(e.target))) {
+                    if (autocompleteList) {
+                        autocompleteList.remove();
+                    }
+                }
+            });
+        }
         
         // Sayı formatlamak için yardımcı fonksiyon
         const formatNumberInput = (inputElement) => {

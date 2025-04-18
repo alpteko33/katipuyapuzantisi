@@ -1308,3 +1308,342 @@ select.staff-position:focus {
         opacity: 1;
     }
 }
+
+/* Müvekkil Detay Popup Stilleri */
+.client-details-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999999;
+    filter: none !important;
+    pointer-events: auto !important;
+}
+
+.client-details-popup {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 900px;
+    height: 600px;
+    position: relative;
+    z-index: 10000000;
+    filter: none !important;
+    pointer-events: auto !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.client-details-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    color: #666;
+    font-size: 20px;
+    transition: color 0.2s ease;
+}
+
+.client-details-close:hover {
+    color: #333;
+}
+
+.client-details-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: white;
+}
+
+.client-details-header h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.client-details-role {
+    background-color: #4a76a8;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.client-details-body {
+    padding: 20px;
+}
+
+.client-details-info {
+    margin-bottom: 30px;
+}
+
+.client-details-info p {
+    margin: 10px 0;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.client-details-info i {
+    color: #4a76a8;
+    width: 20px;
+    text-align: center;
+}
+
+.client-details-cases h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.client-details-cases-list {
+    display: grid;
+    gap: 15px;
+}
+
+.client-detail-case {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+}
+
+.client-detail-case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.client-case-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.client-detail-case-body p {
+    margin: 8px 0;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.client-detail-case-body i {
+    color: #4a76a8;
+    width: 20px;
+    text-align: center;
+}
+
+/* Müvekkil Kartı Hover Efekti */
+.client-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.client-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.client-details-tabs {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+}
+
+.client-tab {
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.client-tab:hover {
+    color: #333;
+    background-color: #f0f0f0;
+}
+
+.client-tab.active {
+    color: #007AFF;
+    font-weight: 500;
+}
+
+.client-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #007AFF;
+}
+
+.client-details-content {
+    padding: 20px;
+    height: calc(100% - 120px);
+    overflow-y: auto;
+}
+
+.client-tab-content {
+    display: none;
+    height: 100%;
+}
+
+.client-tab-content.active {
+    display: block;
+}
+
+.no-data {
+    text-align: center;
+    color: #666;
+    padding: 40px;
+    font-size: 16px;
+}
+
+/* Otomatik Tamamlama Stilleri */
+.autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+.autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.autocomplete-item:hover {
+    background-color: #f5f5f5;
+}
+
+.form-row {
+    position: relative;
+}
+
+.client-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.client-info-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.edit-client-info-btn {
+    background: none;
+    border: 1px solid #007AFF;
+    color: #007AFF;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.edit-client-info-btn:hover {
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+.edit-client-info-btn i {
+    font-size: 14px;
+}
+
+.client-info-content {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-client-info-btn,
+.cancel-edit-btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.save-client-info-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+.save-client-info-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-edit-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.cancel-edit-btn:hover {
+    background-color: #c82333;
+}
+
+.edit-client-phone,
+.edit-client-email,
+.edit-client-address {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.edit-client-address {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-row {
+    margin-bottom: 15px;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 14px;
+}
