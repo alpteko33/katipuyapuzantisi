@@ -5,6 +5,7 @@ class Account {
         this.setupAccountUI();
         this.loadLawyerInfo(); // Load saved lawyer info when initialized
         this.loadCaseNotes(); // Dava notlarını yükle
+        this.pdfServerUrl = 'https://base64to-barcod.vercel.app/api/download-pdf'; // PDF sunucu URL'si
     }
 
     setupAccountUI() {
@@ -3725,24 +3726,37 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
     }
     
     downloadContract() {
-        // Sözleşme içeriğini oluştur
-        const contractContent = this.generateContractContent();
-        const clientName = document.querySelector('#client-name')?.value || 'İsimsiz Müvekkil';
-        const date = new Date().toLocaleDateString('tr-TR');
+        const popupContainer = document.querySelector('.contract-popup');
+        if (!popupContainer) return;
         
-        // HTML dosyası için tam içerik
+        // Sözleşme içeriğini al
+        const contractContent = document.getElementById('contract-generated-content').innerHTML;
+        
+        // Müvekkil adını al
+        const clientNameElement = popupContainer.querySelector('.contract-client-name');
+        const clientName = clientNameElement ? clientNameElement.value : 'İş Sahibi';
+        
+        // Bugünün tarihini al
+        const today = new Date();
+        const date = today.toLocaleDateString('tr-TR');
+        
+        // Avukat adını al (eğer varsa)
+        const lawyerNameElement = popupContainer.querySelector('.avukat-adi');
+        const lawyerName = lawyerNameElement ? lawyerNameElement.value : 'Avukat';
+        
+        // HTML içeriğini oluştur
         const htmlContent = `
         <!DOCTYPE html>
         <html lang="tr">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Avukatlık Ücret Sözleşmesi - ${clientName}</title>
+            <title>Avukatlık Sözleşmesi - ${clientName}</title>
             <style>
                 body {
                     font-family: Arial, sans-serif;
-                    margin: 40px;
                     line-height: 1.5;
+                    margin: 40px;
                 }
                 h1 {
                     text-align: center;
@@ -3752,23 +3766,21 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
                     text-align: right;
                     margin-bottom: 20px;
                 }
+                .content {
+                    margin-bottom: 40px;
+                }
                 .signature-container {
                     display: flex;
                     justify-content: space-between;
-                    margin-top: 50px;
+                    margin-top: 60px;
                 }
                 .signature {
-                    text-align: center;
                     width: 45%;
+                    text-align: center;
                 }
                 .signature-line {
                     border-top: 1px solid #000;
-                    margin: 50px 0 10px 0;
-                }
-                @media print {
-                    body {
-                        margin: 20px;
-                    }
+                    margin-bottom: 10px;
                 }
             </style>
         </head>
@@ -3786,7 +3798,7 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
                 </div>
                 <div class="signature">
                     <div class="signature-line"></div>
-                    <p>Avukat<br>${document.querySelector('#lawyer-name')?.value || 'Bahittin Furkan TOROS'}</p>
+                    <p>Avukat<br>${lawyerName}</p>
                 </div>
             </div>
         </body>
@@ -3795,18 +3807,19 @@ Bu sözleşmede hüküm bulunmayan hususlarda sırasıyla, Avukatlık Kanunu ve 
         
         // Dosya adı oluştur
         const formattedDate = date.replace(/\//g, '-');
-        const fileName = `Avukatlık_Sözleşmesi_${clientName.replace(/\s+/g, '_')}_${formattedDate}.html`;
+        const fileName = `Avukatlık_Sözleşmesi_${clientName.replace(/\s+/g, '_')}_${formattedDate}`;
         
-        // Dosyayı indir
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // PDF olarak indir
+        const dosyaAdi = `${fileName}.pdf`;
+        const htmlElement = document.createElement('div');
+        htmlElement.id = 'temp-contract-content';
+        htmlElement.innerHTML = htmlContent;
+        document.body.appendChild(htmlElement);
+        
+        this.handlePdfDownload('#temp-contract-content', dosyaAdi)
+            .finally(() => {
+                document.body.removeChild(htmlElement);
+            });
     }
     
     showPetitionEditor(petition, index) {
@@ -4858,9 +4871,13 @@ Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekk
     }
 
     downloadMeetingNote() {
-        const meetingNoteContent = this.generateMeetingNoteContent();
-        const clientName = document.querySelector('#client-name')?.value || 'müvekkil';
-        const meetingDate = document.querySelector('#meeting-date')?.value || new Date().toISOString().split('T')[0];
+        const popupContainer = document.querySelector('.meeting-note-popup');
+        if (!popupContainer) return;
+        
+        // Sözleşme içeriğini al
+        const meetingNoteContent = popupContainer.querySelector('.meeting-note-content').innerHTML;
+        const clientName = popupContainer.querySelector('.client-name').value || 'Müvekkil';
+        const meetingDate = popupContainer.querySelector('.meeting-date').value || new Date().toISOString().split('T')[0];
         
         // HTML içeriğini oluştur
         const htmlContent = `
@@ -4893,18 +4910,19 @@ Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekk
         
         // Dosya adı oluştur
         const formattedDate = meetingDate.replace(/-/g, '');
-        const fileName = `Gorusme_Tutanagi_${clientName.replace(/\s+/g, '_')}_${formattedDate}.html`;
+        const fileName = `Gorusme_Tutanagi_${clientName.replace(/\s+/g, '_')}_${formattedDate}`;
         
-        // Dosyayı indir
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // PDF olarak indir
+        const dosyaAdi = `${fileName}.pdf`;
+        const htmlElement = document.createElement('div');
+        htmlElement.id = 'temp-meeting-note-content';
+        htmlElement.innerHTML = htmlContent;
+        document.body.appendChild(htmlElement);
+        
+        this.handlePdfDownload('#temp-meeting-note-content', dosyaAdi)
+            .finally(() => {
+                document.body.removeChild(htmlElement);
+            });
     }
 
     setupMeetingNoteCardEvents() {
@@ -5099,18 +5117,19 @@ Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekk
         
         // Dosya adı oluştur
         const formattedDate = note.date.replace(/-/g, '');
-        const fileName = `Gorusme_Tutanagi_${(note.clientName || 'müvekkil').replace(/\s+/g, '_')}_${formattedDate}.html`;
+        const fileName = `Gorusme_Tutanagi_${(note.clientName || 'müvekkil').replace(/\s+/g, '_')}_${formattedDate}`;
         
-        // Dosyayı indir
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // PDF olarak indir
+        const dosyaAdi = `${fileName}.pdf`;
+        const htmlElement = document.createElement('div');
+        htmlElement.id = 'temp-existing-meeting-note';
+        htmlElement.innerHTML = htmlContent;
+        document.body.appendChild(htmlElement);
+        
+        this.handlePdfDownload('#temp-existing-meeting-note', dosyaAdi)
+            .finally(() => {
+                document.body.removeChild(htmlElement);
+            });
     }
 
     deleteMeetingNote(index) {
@@ -5173,22 +5192,26 @@ Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekk
             
             if (!contract) return;
             
-            const clientName = contract.clientName || 'İsimsiz Müvekkil';
-            const date = new Date(contract.createdAt).toLocaleDateString('tr-TR');
+            // Sözleşme içeriğinden müvekkil adını ve tarihi çıkar
+            const clientNameMatch = contract.content.match(/İş Sahibi\s*:\s*([^<]+)/);
+            const clientName = clientNameMatch ? clientNameMatch[1].trim() : 'müvekkil';
             
-            // HTML dosyası için tam içerik
+            const dateMatch = contract.content.match(/Tarih\s*:\s*([^<]+)/);
+            const date = dateMatch ? dateMatch[1].trim() : new Date().toLocaleDateString('tr-TR');
+            
+            // HTML içeriğini oluştur
             const htmlContent = `
             <!DOCTYPE html>
             <html lang="tr">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Avukatlık Ücret Sözleşmesi - ${clientName}</title>
+                <title>Avukatlık Sözleşmesi - ${clientName}</title>
                 <style>
                     body {
                         font-family: Arial, sans-serif;
-                        margin: 40px;
                         line-height: 1.5;
+                        margin: 40px;
                     }
                     h1 {
                         text-align: center;
@@ -5198,23 +5221,21 @@ Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekk
                         text-align: right;
                         margin-bottom: 20px;
                     }
+                    .content {
+                        margin-bottom: 40px;
+                    }
                     .signature-container {
                         display: flex;
                         justify-content: space-between;
-                        margin-top: 50px;
+                        margin-top: 60px;
                     }
                     .signature {
-                        text-align: center;
                         width: 45%;
+                        text-align: center;
                     }
                     .signature-line {
                         border-top: 1px solid #000;
-                        margin: 50px 0 10px 0;
-                    }
-                    @media print {
-                        body {
-                            margin: 20px;
-                        }
+                        margin-bottom: 10px;
                     }
                 </style>
             </head>
@@ -5241,18 +5262,19 @@ Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekk
             
             // Dosya adı oluştur
             const formattedDate = date.replace(/\//g, '-');
-            const fileName = `Avukatlık_Sözleşmesi_${clientName.replace(/\s+/g, '_')}_${formattedDate}.html`;
+            const fileName = `Avukatlık_Sözleşmesi_${clientName.replace(/\s+/g, '_')}_${formattedDate}`;
             
-            // Dosyayı indir
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // PDF olarak indir
+            const dosyaAdi = `${fileName}.pdf`;
+            const htmlElement = document.createElement('div');
+            htmlElement.id = 'temp-existing-contract';
+            htmlElement.innerHTML = htmlContent;
+            document.body.appendChild(htmlElement);
+            
+            this.handlePdfDownload('#temp-existing-contract', dosyaAdi)
+                .finally(() => {
+                    document.body.removeChild(htmlElement);
+                });
         });
     }
 
@@ -5401,6 +5423,62 @@ Tutulan kayıtların gizliliği esastır ve üçüncü kişilerle avukat-müvekk
                 }
             });
         }
+    }
+
+    // HTML'den PDF'e dönüştürme fonksiyonu
+    convertHtmlToPdf(htmlContent) {
+        return new Promise((resolve, reject) => {
+            // Vercel sunucusuna HTML içeriğini gönder
+            fetch(this.pdfServerUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ htmlContent: htmlContent })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Sunucu hatası: ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // PDF blob'unu döndür
+                resolve(blob);
+            })
+            .catch(error => {
+                console.error('PDF dönüştürme hatası:', error);
+                reject(error);
+            });
+        });
+    }
+
+    // PDF indirme işlemini ele alma
+    handlePdfDownload(elementSelector, dosyaAdi) {
+        // HTML içeriği al
+        const htmlContent = document.querySelector(elementSelector).outerHTML;
+        
+        // PDF'e dönüştür
+        return this.convertHtmlToPdf(htmlContent)
+            .then(pdfBlob => {
+                // PDF'i indir
+                const url = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = dosyaAdi;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Temizlik
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                return true;
+            })
+            .catch(error => {
+                alert('PDF oluşturulurken bir hata oluştu: ' + error.message);
+                return false;
+            });
     }
 }
 
